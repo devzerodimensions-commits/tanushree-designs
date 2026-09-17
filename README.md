@@ -1,0 +1,271 @@
+# Tanushree Designs — Website & Admin Panel
+
+A modern rebuild of [tanushreedesigns.in](https://tanushreedesigns.in) using the
+existing brand identity, with every piece of content editable from a
+fully dynamic admin panel.
+
+| Layer     | Stack                                                          |
+| --------- | -------------------------------------------------------------- |
+| Front end | React 18 (Vite) · React Router · Framer Motion · handwritten CSS |
+| Back end  | Node.js · Express · JWT auth · Multer uploads · Zod validation   |
+| Database  | PostgreSQL                                                       |
+
+---
+
+## Brand palette
+
+Sampled from the logo artwork so the site and the printed identity match:
+
+| Token        | Hex       | Where it comes from / how it is used            |
+| ------------ | --------- | ----------------------------------------------- |
+| Maroon       | `#7D1416` | The "SHREE" red and the wall-unit blocks        |
+| Maroon dark  | `#5A0E10` | The deeper cabinet blocks; dark bands           |
+| Maroon soft  | `#A3302F` | Lifted red for hovers, stars                    |
+| Navy         | `#16165F` | The counter line — accents on light surfaces    |
+| Grey         | `#8C8C8C` | The mid-grey blocks; rules, step numerals       |
+| Grey light   | `#B5B5B5` | The pale drawer bank                            |
+| Charcoal     | `#2B2B2B` | The "TANU / DESIGNS" text; body copy            |
+| Stone        | `#DCD5CF` | Accents on dark grounds, where navy would vanish |
+
+The logo has **no gold**, so the navy counter line carries accents on light
+surfaces and a warm stone carries them on dark ones.
+
+The mark itself is redrawn as vector art in `client/src/components/Logo.jsx` —
+an abstract kitchen elevation (larder panel, wall units, counter line, drawer
+bank) that stays sharp at any size and recolours with the palette. Upload a
+raster logo in **Settings → Brand** to override it.
+
+Headings use **Unna** (serif); the wordmark and body use **DM Sans**, with the
+wordmark set bold and condensed to match the printed logo. Every colour is
+editable in **Admin → Settings → Brand & Colours**, which writes straight into
+the CSS custom properties.
+
+---
+
+## Quick start
+
+### 1. Database
+
+**Option A — a real PostgreSQL server (recommended for production)**
+
+Install PostgreSQL 14+, then put your credentials in `server/.env`.
+
+**Option B — zero-install dev database**
+
+The project ships with [PGlite](https://pglite.dev) (real PostgreSQL compiled
+to WASM) so you can run everything with no database installed:
+
+```bash
+cd server && npm run db:dev
+```
+
+Leave that terminal open. It listens on `127.0.0.1:5432` and persists to
+`server/.pgdata`. When using it, set `PG_POOL_MAX=1` in `server/.env` — PGlite
+serves one connection at a time.
+
+Two caveats with this dev database: stop the API with Ctrl-C (not a hard kill)
+so it disconnects cleanly, and run `npm run db:seed` while the API is stopped,
+since the single connection can only be held by one process. If a connection is
+ever dropped abruptly the socket wedges — restart `npm run db:dev` and carry on.
+A real PostgreSQL server has neither limitation.
+
+### 2. Back end
+
+```bash
+cd server
+npm install
+cp .env.example .env
+npm run db:reset
+npm run dev
+```
+
+`db:reset` creates the schema and seeds the whole website — 12 projects,
+6 services, 6 kitchen layouts, 8 materials, 6 testimonials, the team, the
+process steps, FAQs, page copy and the admin user.
+
+API runs on **http://localhost:5050**.
+
+### 3. Front end
+
+```bash
+cd client
+npm install
+npm run dev
+```
+
+Site runs on **http://localhost:5173** and proxies `/api` to the back end.
+
+### 4. Sign in to the admin panel
+
+http://localhost:5173/admin
+
+```
+admin@tanushreedesigns.in
+Admin@12345
+```
+
+Change this immediately under **Settings → Account**.
+
+---
+
+## Public pages
+
+| Route              | What it contains                                                             |
+| ------------------ | ---------------------------------------------------------------------------- |
+| `/`                | Hero slider, trust strip, intro, services, stats counters, featured projects, process, story, testimonials, CTA, contact form |
+| `/about-us`        | Story, stats, principles, process, team, testimonials                        |
+| `/modular-kitchen` | Six kitchen layouts, build detail rows, filterable materials, Elica appliances, recent kitchens, FAQs |
+| `/our-work`        | Filterable + searchable project gallery                                      |
+| `/our-work/:slug`  | Project gallery with lightbox, spec table, related projects                  |
+| `/contact-us`      | Contact cards, validated form, Google Map, FAQs                              |
+
+Plus a styled 404, sticky header with mobile drawer, floating call/WhatsApp/
+back-to-top buttons, and scroll-reveal animation throughout that respects
+`prefers-reduced-motion`.
+
+---
+
+## Admin panel
+
+Everything the website renders is editable — nothing is hard-coded in the React
+components.
+
+**Content** — Projects (with gallery + featured toggle), Services, Kitchen
+Layouts, Materials, Categories, Testimonials, Team, Process Steps, Stats, FAQs.
+
+A testimonial can be pointed at the project it is about (**Testimonials →
+Project this review is about**). The website then shows that room's photograph
+beside the quote, with a link through to the project — so a review is backed by
+the work it describes rather than sitting on its own.
+
+**Site** — Page Content (hero copy, section headings and SEO per page), Media
+Library (drag-and-drop upload, folders, copy URL), Enquiries (status pipeline
+`new → contacted → quoted → won → closed`, internal notes), Settings (brand
+colours, logo, contact details, social links, announcement bar, hero slides,
+trust strip, SEO defaults, account).
+
+Common behaviour across every content screen: search, show/hide without
+deleting, display ordering, image picker (upload / media library / paste URL),
+delete confirmation, and toast feedback.
+
+---
+
+## API
+
+Public: `GET /api/settings · /api/pages/:slug · /api/services · /api/projects ·
+/api/projects/:slug · /api/categories · /api/kitchen-layouts · /api/materials ·
+/api/testimonials · /api/team · /api/process · /api/stats · /api/faqs`, and
+`POST /api/enquiries`.
+
+Admin (Bearer token): `POST /api/auth/login`, `GET /api/dashboard`, plus
+`GET /admin/all`, `POST`, `PUT`, `PATCH :id/toggle`, `POST /reorder` and
+`DELETE :id` on every content resource, `/api/media/upload`, `/api/settings`
+and `/api/pages/:slug`.
+
+`GET /api/health` reports database connectivity.
+
+---
+
+## Performance
+
+The public site is built to be light and to cache well.
+
+**One request per page.** Each page used to fire six or seven API calls.
+`GET /api/bootstrap/:page` now returns everything a page renders, assembled by
+a single batched SQL query, so a page costs one request instead of seven.
+
+**Server-side caching.** Public reads are held in memory (`CACHE_TTL_MS`,
+default 60s) and the whole cache is dropped automatically after any admin
+write, so edits appear immediately. Responses carry
+`stale-while-revalidate`, which lets the browser paint from cache instantly
+and refresh in the background. Warm responses serve in ~10ms.
+
+**Code splitting.** Routes are lazy-loaded, so the ~70KB admin panel is no
+longer part of the public download. React and Framer Motion sit in their own
+long-lived chunks, so a content or styling change does not invalidate them.
+
+**Asset caching.** Vite fingerprints everything in `/assets`, which is served
+`immutable, max-age=1y`; `index.html` is `no-cache` so new builds are picked
+up immediately. Everything is gzipped (the React chunk goes 164KB → 53KB).
+
+**Responsive images.** `Img` generates a `srcset` for CDN-hosted photography,
+so a phone downloads a 400px file where a desktop gets the full-size one. The
+hero is included — it is the single largest asset on the site.
+
+**Fonts.** DM Sans is loaded as one variable `400..700` range rather than four
+static weights, Unna drops its unused italic, and the stylesheet is attached
+as `media="print"` and enabled from `main.jsx` so it never blocks first paint.
+
+A first visit to the home page is roughly **124KB** over the wire, across ~40
+requests. Repeat visits serve the shell from cache and make two API calls,
+both of which the browser can answer from its own cache while it revalidates.
+
+The largest remaining item is Framer Motion at ~38KB gzipped, about a third of
+the JavaScript. Replacing the scroll-reveal animations with an
+IntersectionObserver and CSS transitions would remove most of that, at the
+cost of a fair amount of rework.
+
+---
+
+## Security
+
+- Passwords hashed with bcrypt; JWT sessions (7-day expiry).
+- Rate limiting on sign-in (20 per 15 min) and the contact form (8 per 10 min).
+- Zod validation on every write, with field-level errors returned to the UI.
+- Honeypot field silently absorbs spam bot submissions.
+- Helmet security headers, CORS locked to `CLIENT_ORIGIN`.
+- All SQL uses parameterised queries.
+- Uploads restricted to images, 8 MB, with sanitised filenames.
+
+---
+
+## Production build
+
+```bash
+cd client && npm run build          # -> client/dist
+cd ../server && NODE_ENV=production npm start
+```
+
+With `NODE_ENV=production` the API also serves `client/dist`, so a single
+Node process runs the whole site.
+
+Set in production: `DATABASE_URL`, a long random `JWT_SECRET`, `CLIENT_ORIGIN`,
+and `PUBLIC_URL` (so uploaded image URLs are absolute and correct).
+
+---
+
+## Content & images
+
+Copy and photography come from the live site at tanushreedesigns.in. The logo
+is the studio's own artwork (`client/public/logo.png`, with a 2x variant), and
+the project photographs are the studio's own, stored in
+`client/public/images/` and served from this origin rather than hot-linked.
+
+**The seed deliberately contains no invented facts.** Earlier drafts included
+placeholder figures — a project count, years in business, a warranty term, and
+client names, locations and dates against each project — none of which the
+studio publishes. Those have been removed rather than shipped as claims about
+the business. What remains is either taken from the live site or is a neutral
+description of what a photograph shows.
+
+That means a few things are intentionally empty:
+
+- **Stats** seeds zero rows, so the counter band does not render. Add real
+  figures under **Admin → Stats** and it appears automatically.
+- **Projects** have no client, location, year, area or duration. Fill them in
+  per project when you want them shown.
+- **Testimonials** contains only the two reviews the studio publishes.
+- **Team members** have no photographs, so each shows a monogram until one is
+  uploaded.
+
+Everything is editable in the admin panel — replace or extend it there rather
+than editing the seed, which is only for a fresh install.
+
+### The map
+
+The contact page embeds Google Maps centred on the studio address, with the
+address and a **Get Directions** button underneath. The embed is built from
+the address string, so the pin is as accurate as Google's geocoding of it. If
+the studio has a Google Business Profile, pasting its share URL into
+**Admin → Settings → Contact → Google Maps embed URL** will pin the listing
+exactly, along with its name, photos and reviews.

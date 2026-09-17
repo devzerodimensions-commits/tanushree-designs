@@ -1,0 +1,27 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+build/
+
+# secrets — never commit
+.env
+.env.*
+!.env.example
+
+# local dev database (PGlite)
+.pgdata/
+
+# admin uploads are runtime data, not source
+server/uploads/*
+!server/uploads/.gitkeep
+
+# misc
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.claude/

@@ -1,0 +1,95 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+#
+# Creates the web service and its PostgreSQL database together. In Render,
+# choose "New +" -> "Blueprint" and point it at this repository; everything
+# below is provisioned for you.
+#
+# One thing to decide before going live: the `disk` block gives admin image
+# uploads somewhere permanent. Without it Render's filesystem is wiped on
+# every deploy and anything uploaded through the Media Library disappears.
+# Disks are a paid feature — see the README if you would rather keep the
+# service free and put uploads on external storage instead.
+
+services:
+  - type: web
+    name: tanushree-designs
+    runtime: node
+    plan: free
+    region: singapore # closest Render region to Ahmedabad
+    branch: main
+
+    buildCommand: npm run render-build
+    startCommand: npm start
+
+    healthCheckPath: /api/health
+
+    # Persistent storage for images uploaded through the admin panel.
+    # Comment this block out to stay on the free plan (see note above).
+    disk:
+      name: uploads
+      mountPath: /opt/render/project/src/server/uploads
+      sizeGB: 1
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      - key: NODE_VERSION
+        value: "22"
+
+      # Supplied by the database below.
+      - key: DATABASE_URL
+        fromDatabase:
+          name: tanushree-db
+          property: connectionString
+
+      - key: PGSSL
+        value: "true"
+
+      # Apply schema.sql on boot so a fresh database sets itself up.
+      - key: RUN_MIGRATIONS
+        value: "true"
+
+      # Signing key for admin sessions — generated once by Render.
+      - key: JWT_SECRET
+        generateValue: true
+
+      - key: JWT_EXPIRES_IN
+        value: 7d
+
+      # The API and the site are the same origin in production, so this only
+      # matters if you ever serve the front end from somewhere else.
+      - key: CLIENT_ORIGIN
+        fromService:
+          type: web
+          name: tanushree-designs
+          envVarKey: RENDER_EXTERNAL_URL
+
+      # Makes uploaded image URLs absolute and correct.
+      - key: PUBLIC_URL
+        fromService:
+          type: web
+          name: tanushree-designs
+          envVarKey: RENDER_EXTERNAL_URL
+
+      - key: MAX_UPLOAD_MB
+        value: "8"
+
+      - key: CACHE_TTL_MS
+        value: "60000"
+
+      # First admin account. Change the password from Settings -> Account
+      # as soon as you have signed in for the first time.
+      - key: ADMIN_NAME
+        value: Tanushree Admin
+      - key: ADMIN_EMAIL
+        value: admin@tanushreedesigns.in
+      - key: ADMIN_PASSWORD
+        sync: false # Render prompts you for this; it is never stored in git.
+
+databases:
+  - name: tanushree-db
+    databaseName: tanushree_designs
+    user: tanushree
+    plan: free
+    region: singapore
