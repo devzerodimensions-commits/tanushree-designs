@@ -445,7 +445,7 @@ async function seedAdmin() {
      ON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name, password_hash = EXCLUDED.password_hash`,
     [name, email, hash]
   );
-  console.log(`  admin user      -> ${email} / ${password}`);
+  console.log(`  admin user      -> ${email}`);
 }
 
 async function run() {
