@@ -254,18 +254,27 @@ After the first deploy:
    `{"ok":true,"db":"connected"}`.
 2. Sign in at `/admin` and change the password under **Settings → Account**.
 
-### Uploads need a disk
+### Uploads are not persistent on the free plan
 
-Render's filesystem is wiped on every deploy. `render.yaml` therefore mounts a
-1 GB disk at `server/uploads` so images added through the Media Library
-survive. **Disks are a paid feature.** To stay on the free plan, delete the
-`disk:` block — the site works fine, but anything uploaded through the admin
-panel disappears on the next deploy. The seeded photography is unaffected: it
-lives in `client/public/images` and is part of the build.
+This blueprint runs on Render's free plan, which has no disk. Render wipes the
+filesystem on every deploy, so **images added through the admin Media Library
+do not survive a redeploy.**
 
-For a free permanent option, put uploads on external storage (Cloudinary, S3,
-Backblaze B2) and paste the resulting URLs into the image fields, which
-already accept a URL.
+The seeded photography is unaffected — it lives in `client/public/images` and
+ships with the build. Only files uploaded after deployment are at risk.
+
+Two ways to fix it when you need to:
+
+- **Attach a disk** (paid instance). Add this back to `render.yaml`:
+  ```yaml
+  disk:
+    name: uploads
+    mountPath: /opt/render/project/src/server/uploads
+    sizeGB: 1
+  ```
+- **Host images externally** (Cloudinary, S3, Backblaze B2) and paste the URL
+  into the image field instead of uploading — every image picker in the admin
+  already accepts a URL.
 
 ### Free plan cold starts
 

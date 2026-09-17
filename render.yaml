@@ -4,11 +4,14 @@
 # choose "New +" -> "Blueprint" and point it at this repository; everything
 # below is provisioned for you.
 #
-# One thing to decide before going live: the `disk` block gives admin image
-# uploads somewhere permanent. Without it Render's filesystem is wiped on
-# every deploy and anything uploaded through the Media Library disappears.
-# Disks are a paid feature — see the README if you would rather keep the
-# service free and put uploads on external storage instead.
+# Runs entirely on Render's free plan.
+#
+# Note on uploads: with no disk attached, Render's filesystem is wiped on
+# every deploy, so images added through the admin Media Library do not
+# survive a redeploy. The seeded photography is unaffected — it ships in
+# client/public/images as part of the build. To make uploads permanent later,
+# either attach a disk (paid) or host them externally; the image fields in
+# the admin already accept a URL. See the README.
 
 services:
   - type: web
@@ -22,13 +25,6 @@ services:
     startCommand: npm start
 
     healthCheckPath: /api/health
-
-    # Persistent storage for images uploaded through the admin panel.
-    # Comment this block out to stay on the free plan (see note above).
-    disk:
-      name: uploads
-      mountPath: /opt/render/project/src/server/uploads
-      sizeGB: 1
 
     envVars:
       - key: NODE_ENV
