@@ -123,10 +123,16 @@ export default function Login() {
               {busy ? 'Signing in…' : 'Sign in'}
             </button>
 
-            <div className="login-hint">
-              Default seeded login — <code>admin@tanushreedesigns.in</code> /{' '}
-              <code>Admin@12345</code>. Change it under Settings → Account after your first sign-in.
-            </div>
+            {/* Development only. Printing the seeded credentials on a public
+                login page would hand an attacker the admin email and a
+                password to try, so this never ships in a production build. */}
+            {import.meta.env.DEV && (
+              <div className="login-hint">
+                Default seeded login — <code>admin@tanushreedesigns.in</code> /{' '}
+                <code>Admin@12345</code>. Change it under Settings → Account after your first
+                sign-in.
+              </div>
+            )}
 
             <p style={{ marginTop: 22, fontSize: '0.85rem', textAlign: 'center' }}>
               <Link to="/" className="link-arrow" style={{ textTransform: 'none', letterSpacing: 0 }}>
