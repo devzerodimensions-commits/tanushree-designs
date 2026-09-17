@@ -1,10 +1,14 @@
 # Render Blueprint — https://render.com/docs/blueprint-spec
 #
-# Creates the web service and its PostgreSQL database together. In Render,
-# choose "New +" -> "Blueprint" and point it at this repository; everything
-# below is provisioned for you.
+# Creates the web service. In Render, choose "New +" -> "Blueprint" and
+# point it at this repository.
 #
 # Runs entirely on Render's free plan.
+#
+# The database is NOT created here. Render allows only one free PostgreSQL
+# per account, so this expects an external Postgres (Neon, Supabase, Aiven
+# or an existing Render database) supplied as DATABASE_URL. Render will
+# prompt for it when you apply the blueprint.
 #
 # Note on uploads: with no disk attached, Render's filesystem is wiped on
 # every deploy, so images added through the admin Media Library do not
@@ -33,11 +37,10 @@ services:
       - key: NODE_VERSION
         value: "22"
 
-      # Supplied by the database below.
+      # Paste your Postgres connection string when Render asks. It must
+      # include ?sslmode=require for a hosted provider such as Neon.
       - key: DATABASE_URL
-        fromDatabase:
-          name: tanushree-db
-          property: connectionString
+        sync: false
 
       - key: PGSSL
         value: "true"
@@ -82,10 +85,3 @@ services:
         value: admin@tanushreedesigns.in
       - key: ADMIN_PASSWORD
         sync: false # Render prompts you for this; it is never stored in git.
-
-databases:
-  - name: tanushree-db
-    databaseName: tanushree_designs
-    user: tanushree
-    plan: free
-    region: singapore

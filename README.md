@@ -234,12 +234,20 @@ and resolve their paths from the source files, not the working directory.
 
 ## Deploying to Render
 
-`render.yaml` is a Blueprint: in Render choose **New + → Blueprint**, point it
-at this repository, and it provisions the web service and a PostgreSQL
-database together, wiring `DATABASE_URL` between them.
+`render.yaml` is a Blueprint: in Render choose **New + → Blueprint** and point
+it at this repository.
 
-Render will ask for one value it will not put in git: `ADMIN_PASSWORD`, the
-password for the first admin account.
+**The database is not created by the blueprint.** Render permits only one free
+PostgreSQL per account, so the app expects an external one. Any Postgres works
+— [Neon](https://neon.tech), Supabase, Aiven, or a Render database you already
+have. Create a database, copy its connection string, and paste it when Render
+asks for `DATABASE_URL`. Use the provider's **pooled** connection string where
+one is offered, and make sure it ends with `?sslmode=require`.
+
+Render will prompt for two values it will not store in git:
+
+- `DATABASE_URL` — the connection string above
+- `ADMIN_PASSWORD` — the password for the first admin account
 
 **The first boot sets itself up.** With `RUN_MIGRATIONS=true` the server
 applies `schema.sql` on start, and if the database has no admin user yet it
