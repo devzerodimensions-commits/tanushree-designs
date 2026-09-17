@@ -30,6 +30,9 @@ function baseConfig(database) {
       password: decodeURIComponent(url.password),
       database: database ?? url.pathname.replace(/^\//, ''),
       ssl: process.env.PGSSL === 'true' ? { rejectUnauthorized: false } : false,
+      // Never let a connection attempt hang: the server waits on this.
+      connectionTimeoutMillis: 10_000,
+      statement_timeout: 60_000,
     };
   }
   return {
@@ -39,6 +42,8 @@ function baseConfig(database) {
     password: process.env.PGPASSWORD || 'postgres',
     database: database ?? (process.env.PGDATABASE || 'tanushree_designs'),
     ssl: process.env.PGSSL === 'true' ? { rejectUnauthorized: false } : false,
+    connectionTimeoutMillis: 10_000,
+    statement_timeout: 60_000,
   };
 }
 
@@ -48,6 +53,14 @@ function baseConfig(database) {
  * failure here is a warning rather than a fatal error.
  */
 async function ensureDatabase() {
+  // A hosted provider (Neon, Supabase, Render...) gives you the database up
+  // front and often denies access to the maintenance database, so trying to
+  // CREATE DATABASE there is pointless and can stall.
+  if (process.env.DATABASE_URL && !/localhost|127\.0\.0\.1/.test(process.env.DATABASE_URL)) {
+    console.log('[migrate] managed database detected, skipping CREATE DATABASE');
+    return;
+  }
+
   const target = baseConfig().database;
   let admin;
   try {

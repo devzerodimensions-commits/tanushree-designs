@@ -77,13 +77,33 @@ if (process.env.NODE_ENV !== 'test') app.use(morgan('dev'));
 app.use('/uploads', express.static(UPLOAD_DIR, { maxAge: '30d' }));
 
 // ------------------------------------------------------------- health
+/**
+ * Always answers 200 while the process is up.
+ *
+ * The platform health check uses this path, and the site serves its pages
+ * whether or not the database is reachable, so a database blip must not make
+ * the host tear down a healthy deploy. The database state is reported in the
+ * body instead, with a short probe so the check never hangs.
+ */
 app.get('/api/health', async (_req, res) => {
+  let db = 'unreachable';
+  let error;
   try {
-    await pool.query('SELECT 1');
-    res.json({ ok: true, db: 'connected', time: new Date().toISOString() });
+    await Promise.race([
+      pool.query('SELECT 1'),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('probe timed out')), 3000)),
+    ]);
+    db = 'connected';
   } catch (err) {
-    res.status(503).json({ ok: false, db: 'unreachable', error: err.message });
+    error = err.message;
   }
+
+  res.json({
+    ok: true,
+    db,
+    ...(error ? { error } : {}),
+    time: new Date().toISOString(),
+  });
 });
 
 // ------------------------------------------------------------- routes
@@ -246,35 +266,40 @@ app.use((err, _req, res, _next) => {
 });
 
 /**
- * On a managed host the database starts empty and there is no shell step
- * before the first boot, so apply the schema here when RUN_MIGRATIONS is set.
- * schema.sql is written to be idempotent, so this is safe on every restart.
+ * Apply the schema, and seed once if the database is brand new.
+ *
+ * This runs AFTER the port is bound, never before: a managed database can be
+ * slow or unreachable, and if the process is still awaiting it the platform
+ * sees a service that never listens and marks the deploy failed. Binding
+ * first means /api/health answers immediately and reports the database state
+ * honestly while setup finishes in the background.
  */
-async function start() {
-  if (process.env.RUN_MIGRATIONS === 'true') {
-    try {
-      await migrate();
+async function setupDatabase() {
+  try {
+    await migrate();
 
-      // A managed host has no shell before the first boot, so a brand new
-      // database would come up empty with no way in. Seed it once, guarded
-      // on there being no admin user, so existing content is never lost.
-      if (await isEmptyDatabase()) {
-        console.log('[startup] empty database detected, seeding initial content');
-        await seed();
-      }
-    } catch (err) {
-      console.error('[startup] database setup failed:', err.message);
-      // Keep serving anyway: /api/health reports the database as unreachable.
+    // No shell step exists before the first boot on a managed host, so a new
+    // database would come up empty with no way in. Seed it once, guarded on
+    // there being no admin user, so existing content is never overwritten.
+    if (await isEmptyDatabase()) {
+      console.log('[startup] empty database detected, seeding initial content');
+      await seed();
     }
+    console.log('[startup] database ready');
+  } catch (err) {
+    console.error('[startup] database setup failed:', err.message);
+    console.error('[startup] the site is serving; /api/health reports the database state');
   }
-
-  return app.listen(PORT, () => {
-    console.log(`\n  Tanushree Designs API  ->  port ${PORT}`);
-    console.log(`  Health check           ->  /api/health\n`);
-  });
 }
 
-const server = await start();
+const server = app.listen(PORT, () => {
+  console.log(`
+  Tanushree Designs API  ->  port ${PORT}`);
+  console.log(`  Health check           ->  /api/health
+`);
+
+  if (process.env.RUN_MIGRATIONS === 'true') setupDatabase();
+});
 
 /**
  * Close database connections before exiting. Beyond being good practice,
