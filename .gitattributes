@@ -1,0 +1,14 @@
+# Normalise line endings so the repo is identical on Windows, macOS and Linux
+# (and so CI/Render never sees spurious whitespace diffs).
+* text=auto eol=lf
+
+# Binary assets must never be converted
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.webp binary
+*.avif binary
+*.gif  binary
+*.ico  binary
+*.woff binary
+*.woff2 binary
