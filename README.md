@@ -222,15 +222,61 @@ cost of a fair amount of rework.
 ## Production build
 
 ```bash
-cd client && npm run build          # -> client/dist
-cd ../server && NODE_ENV=production npm start
+npm run build                  # builds client/dist
+npm start                      # serves API + site from one Node process
 ```
 
 With `NODE_ENV=production` the API also serves `client/dist`, so a single
-Node process runs the whole site.
+process runs the whole site. Both commands are run from the repository root
+and resolve their paths from the source files, not the working directory.
 
-Set in production: `DATABASE_URL`, a long random `JWT_SECRET`, `CLIENT_ORIGIN`,
-and `PUBLIC_URL` (so uploaded image URLs are absolute and correct).
+---
+
+## Deploying to Render
+
+`render.yaml` is a Blueprint: in Render choose **New + → Blueprint**, point it
+at this repository, and it provisions the web service and a PostgreSQL
+database together, wiring `DATABASE_URL` between them.
+
+Render will ask for one value it will not put in git: `ADMIN_PASSWORD`, the
+password for the first admin account.
+
+**The first boot sets itself up.** With `RUN_MIGRATIONS=true` the server
+applies `schema.sql` on start, and if the database has no admin user yet it
+seeds the initial content once. The seed is guarded on that check, so later
+restarts and redeploys never overwrite anything edited in the admin panel.
+There is no shell step to run, which matters because Render's free plan does
+not provide one.
+
+After the first deploy:
+
+1. Open `https://<your-service>.onrender.com/api/health` — expect
+   `{"ok":true,"db":"connected"}`.
+2. Sign in at `/admin` and change the password under **Settings → Account**.
+
+### Uploads need a disk
+
+Render's filesystem is wiped on every deploy. `render.yaml` therefore mounts a
+1 GB disk at `server/uploads` so images added through the Media Library
+survive. **Disks are a paid feature.** To stay on the free plan, delete the
+`disk:` block — the site works fine, but anything uploaded through the admin
+panel disappears on the next deploy. The seeded photography is unaffected: it
+lives in `client/public/images` and is part of the build.
+
+For a free permanent option, put uploads on external storage (Cloudinary, S3,
+Backblaze B2) and paste the resulting URLs into the image fields, which
+already accept a URL.
+
+### Free plan cold starts
+
+A free Render service sleeps after inactivity, so the first request after a
+quiet period takes ~30 seconds. The paid instance type removes this.
+
+### Custom domain
+
+Add it under **Settings → Custom Domain** in Render and point a CNAME at the
+service. `CLIENT_ORIGIN` and `PUBLIC_URL` are wired to Render's external URL
+automatically; override them if you serve from a different hostname.
 
 ---
 
