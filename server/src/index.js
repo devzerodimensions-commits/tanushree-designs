@@ -26,6 +26,7 @@ import { migrate } from './db/migrate.js';
 import {
   isEmptyDatabase,
   seed,
+  seedBuildYourOwn,
   seedCalculator,
   seedElicaPage,
   resetAdminPassword,
@@ -378,6 +379,9 @@ async function setupDatabase() {
       // so content the studio has edited is never overwritten.
       if (await seedCalculator()) {
         console.log('[startup] calculator options added (all rates 0 — set them in Admin)');
+      }
+      if (await seedBuildYourOwn()) {
+        console.log('[startup] build-your-own questions added (all rates 0)');
       }
       if (await seedElicaPage()) {
         console.log('[startup] Elica chimney page content added');

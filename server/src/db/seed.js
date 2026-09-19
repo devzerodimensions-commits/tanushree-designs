@@ -1104,6 +1104,39 @@ export { run as seed };
  *
  * @returns {Promise<string[]>} the keys that were added
  */
+/**
+ * Fill the "build your own package" questions on a database already in use.
+ *
+ * migrate creates the tables but the full seed only runs on an empty database,
+ * so a live site would have the fourth package card leading to no questions at
+ * all. Only writes when there is nothing there, so a studio that has since
+ * written its own questions keeps them.
+ *
+ * @returns {Promise<boolean>} whether anything was written
+ */
+export async function seedBuildYourOwn() {
+  const { rows } = await pool.query('SELECT COUNT(*)::int AS n FROM calc_option_groups');
+  if (rows[0].n > 0) return false;
+
+  for (const [i, g] of CALC_GROUPS.entries()) {
+    await pool.query(
+      `INSERT INTO calc_option_groups (key, question, help_text, mode, sort_order)
+       VALUES ($1,$2,$3,$4,$5)
+       ON CONFLICT (key) DO NOTHING`,
+      [g.key, g.question, g.help_text, g.mode, i]
+    );
+  }
+  for (const [i, o] of CALC_OPTIONS.entries()) {
+    await pool.query(
+      `INSERT INTO calc_options (group_key, title, description, pro_tip, image_url, tier, rate, unit, sort_order)
+       VALUES ($1,$2,$3,$4,$5,$6,0,$7,$8)`,
+      [o.group_key, o.title, o.description, o.pro_tip ?? null, o.image_url ?? null,
+       o.tier ?? 2, o.unit ?? 'per_ft', i]
+    );
+  }
+  return true;
+}
+
 export async function seedMissingSettings() {
   const added = [];
   for (const setting of SETTINGS) {
