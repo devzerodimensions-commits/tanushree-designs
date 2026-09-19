@@ -460,15 +460,6 @@ const CALC_LAYOUTS = [
       { label: 'B', min: 4, max: 24, default: 9 },
     ],
   },
-  {
-    title: 'Island Kitchen',
-    description: 'A wall run plus a freestanding island for prep and seating.',
-    image_url: '/images/layouts/island.svg',
-    segments: [
-      { label: 'A', min: 6, max: 24, default: 12 },
-      { label: 'B', min: 3, max: 12, default: 6 },
-    ],
-  },
 ];
 
 /**
