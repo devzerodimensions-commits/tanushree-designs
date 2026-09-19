@@ -152,6 +152,13 @@ the work it describes rather than sitting on its own.
 `new → contacted → quoted → won → closed` pipeline as Enquiries, showing the
 answers the visitor gave and the figure they were shown).
 
+**What a package includes** is a table rather than a list: each product with
+its own price per running foot. The package price is the sum of those lines,
+and each line's share of the whole is worked out from the prices — so the
+percentages can never disagree with the money, and they always total exactly
+100% (largest-remainder rounding, not per-line rounding, which would let a
+column read 101%). The visitor sees product, price, share and amount.
+
 **Build your own package** is the fourth option on the package step. It asks a
 run of questions — core board, countertop, loft, finish, accessories, on-site
 services, appliances — and each answer carries a price and the unit it is

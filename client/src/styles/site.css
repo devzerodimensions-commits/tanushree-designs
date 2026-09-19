@@ -2119,3 +2119,23 @@
   .calc-lines th:nth-child(3), .calc-lines td:nth-child(3) { display: none; }
   .calc-yesno__row { flex-direction: column; align-items: flex-start; }
 }
+
+/* share of a package, on the card and in the breakdown */
+.calc-pkg__body ul li { align-items: baseline; }
+.calc-share {
+  margin-left: auto;
+  font-style: normal;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  flex: none;
+}
+.calc-pct { display: inline-grid; gap: 4px; justify-items: end; min-width: 62px; }
+.calc-pct i {
+  display: block;
+  height: 3px;
+  min-width: 2px;
+  border-radius: 2px;
+  background: var(--maroon);
+  opacity: 0.55;
+}

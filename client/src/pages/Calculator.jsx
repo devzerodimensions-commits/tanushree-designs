@@ -430,12 +430,19 @@ export default function Calculator() {
                             {p.description && <small>{p.description}</small>}
                             {Array.isArray(p.features) && (
                               <ul>
-                                {p.features.map((f) => (
-                                  <li key={f}>
-                                    <Icon.check />
-                                    {f}
-                                  </li>
-                                ))}
+                                {p.features.map((f, n) => {
+                                  // Older rows are plain strings; newer ones
+                                  // carry the share worked out from the price.
+                                  const name = typeof f === 'string' ? f : f?.name;
+                                  const share = typeof f === 'string' ? 0 : (f?.percent ?? 0);
+                                  return (
+                                    <li key={`${name}-${n}`}>
+                                      <Icon.check />
+                                      <span>{name}</span>
+                                      {share > 0 && <em className="calc-share">{share}%</em>}
+                                    </li>
+                                  );
+                                })}
                               </ul>
                             )}
                           </span>
@@ -677,6 +684,52 @@ export default function Calculator() {
                           </div>
                         )}
                       </dl>
+                    )}
+
+                    {/* What the package includes, priced out for this kitchen:
+                        product, price, and its share of the package. */}
+                    {result.data?.breakdown?.included?.length > 0 && (
+                      <div className="calc-lines">
+                        <h3>What the package includes</h3>
+                        <table>
+                          <thead>
+                            <tr>
+                              <th>Product</th>
+                              <th>Price</th>
+                              <th>Share</th>
+                              <th>Amount</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {result.data.breakdown.included.map((line, n) => (
+                              <tr key={`${line.name}-${n}`}>
+                                <td>
+                                  <b>{line.name}</b>
+                                  <small>
+                                    {line.quantity} {line.unit}
+                                  </small>
+                                </td>
+                                <td>
+                                  {line.rate > 0
+                                    ? `${rupees(line.rate, currency)} / ${line.unit}`
+                                    : '—'}
+                                </td>
+                                <td>
+                                  {line.percent > 0 ? (
+                                    <span className="calc-pct">
+                                      <i style={{ width: `${line.percent}%` }} />
+                                      {line.percent}%
+                                    </span>
+                                  ) : (
+                                    '—'
+                                  )}
+                                </td>
+                                <td>{line.amount > 0 ? rupees(line.amount, currency) : '—'}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     )}
 
                     {/* What was specified, how much of it a kitchen this size

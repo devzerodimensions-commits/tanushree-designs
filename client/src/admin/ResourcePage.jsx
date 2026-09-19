@@ -17,6 +17,7 @@ import {
   TableSkeleton,
   useToast,
 } from './ui.jsx';
+import IncludedEditor from './IncludedEditor.jsx';
 
 /**
  * Schema-driven CRUD screen. Every simple content table in the admin
@@ -167,6 +168,8 @@ export default function ResourcePage({
         return <GalleryPicker value={value} onChange={set(f.name)} folder={resource} />;
       case 'list':
         return <ListEditor value={value ?? []} onChange={set(f.name)} placeholder={f.placeholder} />;
+      case 'included':
+        return <IncludedEditor value={value ?? []} onChange={set(f.name)} />;
       case 'select': {
         const options = f.optionsFrom ? (remoteOptions[f.name] ?? []) : f.options;
         return (

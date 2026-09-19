@@ -397,15 +397,24 @@ export const CalcPackagesPage = () => (
       {
         key: 'rate_per_ft',
         label: 'Rate / running ft',
-        width: 165,
-        render: (r) =>
-          Number(r.rate_per_ft) > 0 ? (
+        width: 180,
+        render: (r) => {
+          const items = Array.isArray(r.features) ? r.features : [];
+          const sum = items.reduce((t, f) => t + (Number(f?.rate) || 0), 0);
+          const total = sum > 0 ? sum : Number(r.rate_per_ft) || 0;
+          if (!total) return <span className="chip chip--new">not priced</span>;
+          return (
             <b style={{ fontWeight: 600 }}>
-              ₹{Number(r.rate_per_ft).toLocaleString('en-IN')}
+              ₹{total.toLocaleString('en-IN')}
+              {sum > 0 && (
+                <span style={{ fontWeight: 400, color: 'var(--muted)', fontSize: '0.76rem' }}>
+                  {' '}
+                  ({items.filter((f) => Number(f?.rate) > 0).length} items)
+                </span>
+              )}
             </b>
-          ) : (
-            <span className="chip chip--new">not priced</span>
-          ),
+          );
+        },
       },
       { key: 'tier', label: 'Tier', width: 80, render: (r) => '₹'.repeat(r.tier || 1) },
       { key: 'is_active', label: 'Status', width: 100, render: cellStatus },
@@ -421,13 +430,18 @@ export const CalcPackagesPage = () => (
       },
       {
         name: 'rate_per_ft',
-        label: 'Rate per running foot (₹)',
+        label: 'Rate per running foot (₹) — fallback only',
         type: 'number',
-        hint: 'Leave at 0 and the calculator collects the enquiry without showing a figure',
+        hint: 'Used only when nothing below is priced. Price the products instead and this is ignored.',
       },
       { name: 'description', label: 'Description', type: 'textarea', rows: 3 },
       { name: 'image_url', label: 'Image', type: 'image' },
-      { name: 'features', label: 'What is included', type: 'list', placeholder: 'Add a feature' },
+      {
+        name: 'features',
+        label: 'What is included',
+        type: 'included',
+        hint: 'Each product with its price per running foot. The package price is their sum, and each share is worked out from the prices.',
+      },
     ]}
   />
 );

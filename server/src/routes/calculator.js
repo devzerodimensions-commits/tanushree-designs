@@ -20,6 +20,70 @@ import { cached } from '../utils/cache.js';
 
 const router = Router();
 
+/**
+ * What a package includes, as a consistent shape.
+ *
+ * The field started life as a list of plain strings ("Laminate shutters") and
+ * became a list of {name, rate} so each included item can carry its own price
+ * per running foot. Old rows are still read, so nothing has to be migrated
+ * before the admin is next opened.
+ *
+ * @returns {{name: string, rate: number}[]}
+ */
+function normaliseFeatures(features) {
+  if (!Array.isArray(features)) return [];
+  return features
+    .map((f) =>
+      typeof f === 'string'
+        ? { name: f, rate: 0 }
+        : { name: String(f?.name ?? '').trim(), rate: Math.max(0, Number(f?.rate) || 0) }
+    )
+    .filter((f) => f.name);
+}
+
+/**
+ * A package's rate per running foot.
+ *
+ * The sum of its included items when any of them is priced, so the breakdown
+ * always adds up to the total the visitor is shown. `rate_per_ft` remains the
+ * fallback for a package priced as one lump.
+ */
+function packageRate(pkg) {
+  const items = normaliseFeatures(pkg?.features);
+  const sum = items.reduce((t, f) => t + f.rate, 0);
+  return sum > 0 ? sum : Math.max(0, Number(pkg?.rate_per_ft) || 0);
+}
+
+/**
+ * Each item's share of the package, as a whole percentage.
+ *
+ * Rounded by largest remainder rather than individually, because rounding each
+ * one on its own lets the column total 99% or 101% — which reads as a mistake
+ * to anyone looking at it. Here the floors are handed out first and the spare
+ * points go to the items that lost the most in rounding, so the column always
+ * adds to exactly 100.
+ */
+function withShare(items) {
+  const total = items.reduce((t, f) => t + f.rate, 0);
+  if (total <= 0) return items.map((f) => ({ ...f, percent: 0 }));
+
+  const exact = items.map((f) => (f.rate / total) * 100);
+  const percents = exact.map(Math.floor);
+  let spare = 100 - percents.reduce((t, n) => t + n, 0);
+
+  // Biggest fractional part first; ties go to the larger item.
+  const order = exact
+    .map((v, i) => ({ i, frac: v - Math.floor(v), rate: items[i].rate }))
+    .sort((a, b) => b.frac - a.frac || b.rate - a.rate);
+
+  for (let n = 0; n < order.length && spare > 0; n += 1, spare -= 1) {
+    percents[order[n].i] += 1;
+  }
+
+  return items.map((f, i) => ({ ...f, percent: percents[i] }));
+}
+
+
 const quoteLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
   max: 10,
@@ -60,7 +124,17 @@ router.get(
     res.json({
       data: {
         layouts: r.layouts ?? [],
-        packages: r.packages ?? [],
+        // Included items carry their share so the card can show name and
+        // percentage. The rate itself stays on the server.
+        packages: (r.packages ?? []).map((p) => {
+          const items = withShare(normaliseFeatures(p.features));
+          return {
+            ...p,
+            rate_per_ft: undefined,
+            features: items.map(({ name, percent }) => ({ name, percent })),
+            priced: packageRate(p) > 0,
+          };
+        }),
         addons: r.addons ?? [],
         // The rate is deliberately not sent to the browser. Only the tier —
         // the row of rupee symbols — is public; the money is applied on the
@@ -152,8 +226,20 @@ router.post(
         ).rows
       : [];
 
-    const rate = Number(pkg.rows[0]?.rate_per_ft ?? 0);
+    // The package rate is the sum of what it includes, so the lines below add
+    // up to the figure the visitor is shown.
+    const rate = pkg.rows[0] ? packageRate(pkg.rows[0]) : 0;
     const cabinetry = Math.round(runningFeet * rate);
+
+    // What is included, priced out for a kitchen this size.
+    const includedLines = withShare(normaliseFeatures(pkg.rows[0]?.features)).map((f) => ({
+      name: f.name,
+      rate: f.rate,
+      percent: f.percent,
+      quantity: runningFeet,
+      unit: 'running ft',
+      amount: Math.round(runningFeet * f.rate),
+    }));
     const addonTotal = addons.reduce((sum, a) => sum + Number(a.price ?? 0), 0);
 
     /*
@@ -223,6 +309,7 @@ router.post(
       cabinetry,
       addons: addons.map((a) => ({ title: a.title, price: Number(a.price) })),
       addon_total: addonTotal,
+      included: includedLines,
       measured,
       cabinet_height_ft: cabinetHeight,
       shutter_area_sqft: shutterArea,

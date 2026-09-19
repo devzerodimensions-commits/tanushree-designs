@@ -471,6 +471,15 @@ const CALC_LAYOUTS = [
   },
 ];
 
+/**
+ * The ready-made tiers.
+ *
+ * `features` is what the package includes, and each item carries its own rate
+ * per running foot. The package price is the sum of those, so the breakdown a
+ * visitor sees always adds up to the total, and each line's share of the whole
+ * is worked out rather than typed. Every rate is 0 here for the same reason as
+ * everywhere else in this file.
+ */
 const CALC_PACKAGES = [
   {
     title: 'Essentials',
@@ -478,7 +487,12 @@ const CALC_PACKAGES = [
     description:
       'The units and accessories needed for a comfortable, hard-wearing modular kitchen.',
     image_url: P.kitchen8,
-    features: ['Laminate shutters', 'Soft-close hinges', 'Standard accessories', 'Granite countertop'],
+    features: [
+      { name: 'Laminate shutters', rate: 0 },
+      { name: 'Soft-close hinges', rate: 0 },
+      { name: 'Standard accessories', rate: 0 },
+      { name: 'Granite countertop', rate: 0 },
+    ],
     rate_per_ft: 0,
   },
   {
@@ -487,7 +501,12 @@ const CALC_PACKAGES = [
     description:
       'Sleeker fixtures, better hardware and a wider choice of finishes throughout.',
     image_url: P.kitchen,
-    features: ['Acrylic or PU shutters', 'Tandem box drawers', 'Wider accessory range', 'Quartz countertop'],
+    features: [
+      { name: 'Acrylic or PU shutters', rate: 0 },
+      { name: 'Tandem box drawers', rate: 0 },
+      { name: 'Wider accessory range', rate: 0 },
+      { name: 'Quartz countertop', rate: 0 },
+    ],
     rate_per_ft: 0,
   },
   {
@@ -496,7 +515,12 @@ const CALC_PACKAGES = [
     description:
       'Our most complete specification, blending aesthetics with heavy daily use.',
     image_url: P.classic,
-    features: ['Premium finishes', 'Full internal organisers', 'Designer hardware', 'Integrated lighting'],
+    features: [
+      { name: 'Premium finishes', rate: 0 },
+      { name: 'Full internal organisers', rate: 0 },
+      { name: 'Designer hardware', rate: 0 },
+      { name: 'Integrated lighting', rate: 0 },
+    ],
     rate_per_ft: 0,
   },
 ];
