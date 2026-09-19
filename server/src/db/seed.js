@@ -316,6 +316,108 @@ const PAGES = [
   },
 ];
 
+
+// ===================================================================
+//  Kitchen price calculator
+// ===================================================================
+
+/**
+ * PLACEHOLDER RATES — every price below is 0 on purpose.
+ *
+ * The studio does not publish rates, and inventing them would put false
+ * numbers in front of customers. Set the real figures in
+ * Admin -> Calculator before promoting the page.
+ *
+ * A package with a rate of 0 is treated as "not priced yet": the
+ * calculator hides the number and invites the visitor to request a quote
+ * instead, so the page is useful and honest either way.
+ */
+const CALC_LAYOUTS = [
+  {
+    title: 'L-Shaped Kitchen',
+    description: 'Two runs meeting in a corner — the most common apartment layout.',
+    image_url: '/images/layouts/l-shaped.svg',
+    segments: [
+      { label: 'A', min: 4, max: 20, default: 6 },
+      { label: 'B', min: 4, max: 24, default: 9 },
+    ],
+  },
+  {
+    title: 'Straight Kitchen',
+    description: 'Everything along a single wall. Ideal for compact homes.',
+    image_url: '/images/layouts/straight.svg',
+    segments: [{ label: 'A', min: 4, max: 24, default: 10 }],
+  },
+  {
+    title: 'U-Shaped Kitchen',
+    description: 'Three connected runs, giving the most counter and storage.',
+    image_url: '/images/layouts/u-shaped.svg',
+    segments: [
+      { label: 'A', min: 4, max: 20, default: 6 },
+      { label: 'B', min: 4, max: 24, default: 9 },
+      { label: 'C', min: 4, max: 20, default: 6 },
+    ],
+  },
+  {
+    title: 'Parallel Kitchen',
+    description: 'Two facing runs with a walkway between them.',
+    image_url: '/images/layouts/parallel.svg',
+    segments: [
+      { label: 'A', min: 4, max: 24, default: 9 },
+      { label: 'B', min: 4, max: 24, default: 9 },
+    ],
+  },
+  {
+    title: 'Island Kitchen',
+    description: 'A wall run plus a freestanding island for prep and seating.',
+    image_url: '/images/layouts/island.svg',
+    segments: [
+      { label: 'A', min: 6, max: 24, default: 12 },
+      { label: 'B', min: 3, max: 12, default: 6 },
+    ],
+  },
+];
+
+const CALC_PACKAGES = [
+  {
+    title: 'Essentials',
+    tier: 2,
+    description:
+      'The units and accessories needed for a comfortable, hard-wearing modular kitchen.',
+    image_url: P.kitchen8,
+    features: ['Laminate shutters', 'Soft-close hinges', 'Standard accessories', 'Granite countertop'],
+    rate_per_ft: 0,
+  },
+  {
+    title: 'Premium',
+    tier: 3,
+    description:
+      'Sleeker fixtures, better hardware and a wider choice of finishes throughout.',
+    image_url: P.kitchen,
+    features: ['Acrylic or PU shutters', 'Tandem box drawers', 'Wider accessory range', 'Quartz countertop'],
+    rate_per_ft: 0,
+  },
+  {
+    title: 'Luxe',
+    tier: 4,
+    description:
+      'Our most complete specification, blending aesthetics with heavy daily use.',
+    image_url: P.classic,
+    features: ['Premium finishes', 'Full internal organisers', 'Designer hardware', 'Integrated lighting'],
+    rate_per_ft: 0,
+  },
+];
+
+/** Optional extras, priced individually. */
+const CALC_ADDONS = [
+  { title: 'Elica Kitchen Chimney', category: 'appliance', description: 'Auto-clean filterless chimney, ducted out through the utility.', image_url: P.appliances, price: 0 },
+  { title: 'Built-in Hob', category: 'appliance', description: 'Glass-top gas hob cut into the counter.', image_url: P.kitchen3, price: 0 },
+  { title: 'Built-in Oven', category: 'appliance', description: 'Oven housed in a tall unit at eye level.', image_url: P.kitchen7, price: 0 },
+  { title: 'Sink & Faucet', category: 'fitting', description: 'Stainless or quartz sink with a pull-out faucet.', image_url: P.work1, price: 0 },
+  { title: 'Tall Unit / Pantry', category: 'storage', description: 'Full-height pull-out pantry beside the fridge.', image_url: P.kitchen2, price: 0 },
+  { title: 'Profile Lighting', category: 'lighting', description: 'Warm LED profile lighting under the wall units.', image_url: P.kitchenAlt, price: 0 },
+];
+
 const SETTINGS = [
   {
     key: 'brand',
@@ -411,6 +513,23 @@ const SETTINGS = [
       keywords:
         'modular kitchen ahmedabad, interior designer ahmedabad, kitchen chimney, wardrobes, kitchen design',
       og_image: P.hero,
+    },
+  },
+  {
+    key: 'calculator',
+    group_name: 'calculator',
+    label: 'Price calculator',
+    value: {
+      enabled: true,
+      range_percent: 12,
+      currency: '₹',
+      headline: 'Kitchen Price Calculator',
+      subhead:
+        'Answer four quick questions and we will send an indicative estimate for your kitchen.',
+      disclaimer:
+        'This is an indicative estimate based on the sizes you entered. Final pricing is confirmed after a site measurement and your choice of finishes.',
+      success_message:
+        'Thank you. Our design team will call you to talk the estimate through.',
     },
   },
   {
@@ -586,6 +705,36 @@ async function run() {
     );
   }
   console.log(`  faqs            -> ${FAQS.length}`);
+
+  // ---------------------------------------------------- calculator
+  await pool.query('DELETE FROM calc_layouts');
+  for (const [i, l] of CALC_LAYOUTS.entries()) {
+    await pool.query(
+      `INSERT INTO calc_layouts (title, slug, description, image_url, segments, sort_order)
+       VALUES ($1,$2,$3,$4,$5::jsonb,$6)`,
+      [l.title, slugify(l.title), l.description, l.image_url, JSON.stringify(l.segments), i]
+    );
+  }
+  await pool.query('DELETE FROM calc_packages');
+  for (const [i, k] of CALC_PACKAGES.entries()) {
+    await pool.query(
+      `INSERT INTO calc_packages (title, slug, tier, description, image_url, features, rate_per_ft, sort_order)
+       VALUES ($1,$2,$3,$4,$5,$6::jsonb,$7,$8)`,
+      [k.title, slugify(k.title), k.tier, k.description, k.image_url, JSON.stringify(k.features), k.rate_per_ft, i]
+    );
+  }
+  await pool.query('DELETE FROM calc_addons');
+  for (const [i, a] of CALC_ADDONS.entries()) {
+    await pool.query(
+      `INSERT INTO calc_addons (title, slug, description, image_url, price, category, sort_order)
+       VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+      [a.title, slugify(a.title), a.description, a.image_url, a.price, a.category, i]
+    );
+  }
+  console.log(
+    `  calculator      -> ${CALC_LAYOUTS.length} layouts, ${CALC_PACKAGES.length} packages, ${CALC_ADDONS.length} add-ons`
+  );
+  console.log('                     rates are 0 — set them in Admin -> Calculator');
 
   for (const p of PAGES) {
     await pool.query(

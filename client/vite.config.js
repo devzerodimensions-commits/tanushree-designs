@@ -4,7 +4,8 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 5173,
+    // PORT lets a launcher pick a free port when 5173 is already taken.
+    port: Number(process.env.PORT) || 5173,
     open: false,
     proxy: {
       '/api': { target: 'http://localhost:5050', changeOrigin: true },

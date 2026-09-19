@@ -18,6 +18,8 @@ router.get(
           (SELECT COUNT(*)::int FROM testimonials WHERE is_active)   AS testimonials,
           (SELECT COUNT(*)::int FROM enquiries)                      AS enquiries,
           (SELECT COUNT(*)::int FROM enquiries WHERE status = 'new') AS enquiries_new,
+          (SELECT COUNT(*)::int FROM calc_quotes)                     AS quotes,
+          (SELECT COUNT(*)::int FROM calc_quotes WHERE status = 'new') AS quotes_new,
           (SELECT COUNT(*)::int FROM media)                          AS media,
           (SELECT COUNT(*)::int FROM kitchen_layouts WHERE is_active) AS layouts
       `),

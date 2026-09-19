@@ -100,6 +100,9 @@ export const adminApi = {
   saveSettings: (settings) => api.put('/settings', { settings }, true),
   pages: () => api.get('/pages'),
   savePage: (slug, body) => api.put(`/pages/${slug}`, body, true),
+  calcQuotes: (qs = '') => api.get(`/calculator/quotes${qs}`, true),
+  updateCalcQuote: (id, body) => api.patch(`/calculator/quotes/${id}`, body, true),
+  removeCalcQuote: (id) => api.del(`/calculator/quotes/${id}`),
   changePassword: (body) => api.post('/auth/change-password', body, true),
   updateProfile: (body) => api.put('/auth/profile', body, true),
 };

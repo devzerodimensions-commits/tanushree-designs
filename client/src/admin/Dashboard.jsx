@@ -8,6 +8,7 @@ import { EmptyState, TableSkeleton } from './ui.jsx';
 const KPIS = [
   { key: 'projects_live', label: 'Live projects', icon: 'grid', to: '/admin/projects' },
   { key: 'enquiries_new', label: 'New enquiries', icon: 'inbox', to: '/admin/enquiries' },
+  { key: 'quotes_new', label: 'New estimates', icon: 'chart', to: '/admin/quotes' },
   { key: 'services', label: 'Active services', icon: 'kitchen', to: '/admin/services' },
   { key: 'testimonials', label: 'Testimonials', icon: 'quote', to: '/admin/testimonials' },
   { key: 'layouts', label: 'Kitchen layouts', icon: 'layout', to: '/admin/kitchen-layouts' },

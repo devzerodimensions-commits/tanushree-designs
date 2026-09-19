@@ -319,3 +319,136 @@ export const FaqsPage = () => (
     ]}
   />
 );
+
+/* ======================================================= calculator ==== */
+
+export const CalcLayoutsPage = () => (
+  <ResourcePage
+    resource="calc-layouts"
+    title="Calculator — Layouts"
+    subtitle="Step 1 of the price calculator: the kitchen shapes a visitor can pick"
+    singular="Layout"
+    emptyIcon="layout"
+    columns={[
+      { key: 'title', label: 'Layout', render: cellThumb('image_url', 'title', 'description') },
+      {
+        key: 'segments',
+        label: 'Walls measured',
+        width: 150,
+        render: (r) =>
+          Array.isArray(r.segments) && r.segments.length
+            ? r.segments.map((x) => x.label).join(', ')
+            : '—',
+      },
+      { key: 'sort_order', label: 'Order', width: 80 },
+      { key: 'is_active', label: 'Status', width: 100, render: cellStatus },
+    ]}
+    fields={[
+      { name: 'title', label: 'Layout name', type: 'text', required: true },
+      { name: 'description', label: 'Short description', type: 'textarea', rows: 2 },
+      { name: 'image_url', label: 'Plan diagram', type: 'image', hint: 'A simple top-down drawing of the shape' },
+      {
+        name: 'segments',
+        label: 'Wall segments (structured)',
+        type: 'json',
+        hint: 'One entry per wall to measure: label, min, max and default, all in feet',
+      },
+    ]}
+  />
+);
+
+export const CalcPackagesPage = () => (
+  <ResourcePage
+    resource="calc-packages"
+    title="Calculator — Packages"
+    subtitle="Step 3: the tiers a visitor picks, and the rate each one is priced at"
+    singular="Package"
+    emptyIcon="layers"
+    columns={[
+      { key: 'title', label: 'Package', render: cellThumb('image_url', 'title', 'description') },
+      {
+        key: 'rate_per_ft',
+        label: 'Rate / running ft',
+        width: 165,
+        render: (r) =>
+          Number(r.rate_per_ft) > 0 ? (
+            <b style={{ fontWeight: 600 }}>
+              ₹{Number(r.rate_per_ft).toLocaleString('en-IN')}
+            </b>
+          ) : (
+            <span className="chip chip--new">not priced</span>
+          ),
+      },
+      { key: 'tier', label: 'Tier', width: 80, render: (r) => '₹'.repeat(r.tier || 1) },
+      { key: 'is_active', label: 'Status', width: 100, render: cellStatus },
+    ]}
+    fields={[
+      { name: 'title', label: 'Package name', type: 'text', required: true, half: true },
+      {
+        name: 'tier',
+        label: 'Price tier (₹ symbols shown)',
+        type: 'select',
+        half: true,
+        options: [2, 3, 4, 5].map((n) => ({ value: n, label: '₹'.repeat(n) })),
+      },
+      {
+        name: 'rate_per_ft',
+        label: 'Rate per running foot (₹)',
+        type: 'number',
+        hint: 'Leave at 0 and the calculator collects the enquiry without showing a figure',
+      },
+      { name: 'description', label: 'Description', type: 'textarea', rows: 3 },
+      { name: 'image_url', label: 'Image', type: 'image' },
+      { name: 'features', label: 'What is included', type: 'list', placeholder: 'Add a feature' },
+    ]}
+  />
+);
+
+export const CalcAddonsPage = () => (
+  <ResourcePage
+    resource="calc-addons"
+    title="Calculator — Add-ons"
+    subtitle="Optional extras such as the Elica chimney, hob, oven and sink"
+    singular="Add-on"
+    emptyIcon="appliance"
+    searchKeys={['title', 'category']}
+    defaults={{ category: 'appliance' }}
+    columns={[
+      { key: 'title', label: 'Add-on', render: cellThumb('image_url', 'title', 'description') },
+      {
+        key: 'price',
+        label: 'Price',
+        width: 140,
+        render: (r) =>
+          Number(r.price) > 0 ? (
+            <b style={{ fontWeight: 600 }}>₹{Number(r.price).toLocaleString('en-IN')}</b>
+          ) : (
+            <span className="chip chip--new">not priced</span>
+          ),
+      },
+      {
+        key: 'category',
+        label: 'Category',
+        width: 120,
+        render: (r) => <span className="chip chip--gold">{r.category}</span>,
+      },
+      { key: 'is_active', label: 'Status', width: 100, render: cellStatus },
+    ]}
+    fields={[
+      { name: 'title', label: 'Add-on name', type: 'text', required: true, half: true },
+      {
+        name: 'category',
+        label: 'Category',
+        type: 'select',
+        half: true,
+        options: ['appliance', 'fitting', 'storage', 'lighting', 'other'].map((v) => ({
+          value: v,
+          label: v,
+        })),
+      },
+      { name: 'price', label: 'Price (₹)', type: 'number', hint: 'Added on top of the cabinetry estimate' },
+      { name: 'description', label: 'Description', type: 'textarea', rows: 2 },
+      { name: 'image_url', label: 'Image', type: 'image' },
+    ]}
+  />
+);

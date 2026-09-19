@@ -180,6 +180,24 @@ export default function ResourcePage({
           </select>
         );
       }
+      case 'json':
+        return (
+          <textarea
+            rows={f.rows || 8}
+            defaultValue={JSON.stringify(value ?? [], null, 2)}
+            style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.82rem' }}
+            onChange={(e) => {
+              try {
+                set(f.name)(JSON.parse(e.target.value));
+                e.target.style.borderColor = '';
+              } catch {
+                // Leave the text as typed and flag it; saving is blocked by
+                // the parse failing, so a half-typed value cannot be stored.
+                e.target.style.borderColor = '#c0392b';
+              }
+            }}
+          />
+        );
       case 'switch':
         return <Switch checked={value} onChange={set(f.name)} label={f.switchLabel || 'Enabled'} />;
       case 'color':

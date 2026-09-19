@@ -28,6 +28,15 @@ const NAV = [
     ],
   },
   {
+    label: 'Calculator',
+    items: [
+      { to: '/admin/calc-packages', label: 'Packages & Rates', icon: 'layers' },
+      { to: '/admin/calc-layouts', label: 'Layouts', icon: 'layout' },
+      { to: '/admin/calc-addons', label: 'Add-ons', icon: 'appliance' },
+      { to: '/admin/quotes', label: 'Estimates', icon: 'chart', badge: 'quotes' },
+    ],
+  },
+  {
     label: 'Site',
     items: [
       { to: '/admin/pages', label: 'Page Content', icon: 'edit' },
@@ -43,6 +52,7 @@ export default function AdminLayout() {
   const { brand } = useSite();
   const [open, setOpen] = useState(false);
   const [newCount, setNewCount] = useState(0);
+  const [quotesCount, setQuotesCount] = useState(0);
   const { pathname } = useLocation();
 
   useEffect(() => setOpen(false), [pathname]);
@@ -52,7 +62,10 @@ export default function AdminLayout() {
     const load = () =>
       adminApi
         .dashboard()
-        .then(({ counts }) => setNewCount(counts?.enquiries_new ?? 0))
+        .then(({ counts }) => {
+          setNewCount(counts?.enquiries_new ?? 0);
+          setQuotesCount(counts?.quotes_new ?? 0);
+        })
         .catch(() => {});
     load();
     const id = setInterval(load, 60000);
@@ -103,6 +116,9 @@ export default function AdminLayout() {
                       {item.label}
                       {item.badge === 'enquiries' && newCount > 0 && (
                         <span className="admin-nav__badge">{newCount}</span>
+                      )}
+                      {item.badge === 'quotes' && quotesCount > 0 && (
+                        <span className="admin-nav__badge">{quotesCount}</span>
                       )}
                     </NavLink>
                   );

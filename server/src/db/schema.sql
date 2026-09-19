@@ -230,3 +230,74 @@ CREATE TABLE IF NOT EXISTS pages (
   seo_description VARCHAR(400),
   updated_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
+
+-- =====================================================================
+--  Kitchen price calculator
+--  Every rate, label, image and option is editable in the admin panel —
+--  nothing about pricing is hard-coded in the front end.
+-- =====================================================================
+
+-- Step 1: the layouts a visitor can choose, each with its own plan diagram
+-- and the wall segments that get measured in step 2.
+CREATE TABLE IF NOT EXISTS calc_layouts (
+  id          SERIAL PRIMARY KEY,
+  title       VARCHAR(120) NOT NULL,
+  slug        VARCHAR(140) NOT NULL UNIQUE,
+  description TEXT,
+  image_url   TEXT,
+  -- [{ "label": "A", "min": 4, "max": 20, "default": 8 }, ...]
+  segments    JSONB        NOT NULL DEFAULT '[]'::jsonb,
+  sort_order  INTEGER      NOT NULL DEFAULT 0,
+  is_active   BOOLEAN      NOT NULL DEFAULT TRUE
+);
+
+-- Step 3: package tiers. rate_per_ft is the price of one running foot of
+-- base + wall cabinetry in that tier.
+CREATE TABLE IF NOT EXISTS calc_packages (
+  id           SERIAL PRIMARY KEY,
+  title        VARCHAR(120) NOT NULL,
+  slug         VARCHAR(140) NOT NULL UNIQUE,
+  tier         SMALLINT     NOT NULL DEFAULT 2,
+  description  TEXT,
+  image_url    TEXT,
+  features     JSONB        NOT NULL DEFAULT '[]'::jsonb,
+  rate_per_ft  INTEGER      NOT NULL DEFAULT 0,
+  sort_order   INTEGER      NOT NULL DEFAULT 0,
+  is_active    BOOLEAN      NOT NULL DEFAULT TRUE
+);
+
+-- Optional extras priced as a flat amount each (chimney, hob, sink...).
+CREATE TABLE IF NOT EXISTS calc_addons (
+  id          SERIAL PRIMARY KEY,
+  title       VARCHAR(140) NOT NULL,
+  slug        VARCHAR(160) NOT NULL UNIQUE,
+  description TEXT,
+  image_url   TEXT,
+  price       INTEGER      NOT NULL DEFAULT 0,
+  category    VARCHAR(60)  NOT NULL DEFAULT 'appliance',
+  sort_order  INTEGER      NOT NULL DEFAULT 0,
+  is_active   BOOLEAN      NOT NULL DEFAULT TRUE
+);
+
+-- Every estimate a visitor completes, with the answers that produced it.
+CREATE TABLE IF NOT EXISTS calc_quotes (
+  id           SERIAL PRIMARY KEY,
+  name         VARCHAR(140) NOT NULL,
+  email        VARCHAR(180) NOT NULL,
+  phone        VARCHAR(40),
+  city         VARCHAR(120),
+  whatsapp_ok  BOOLEAN      NOT NULL DEFAULT FALSE,
+  layout_id    INTEGER REFERENCES calc_layouts(id) ON DELETE SET NULL,
+  package_id   INTEGER REFERENCES calc_packages(id) ON DELETE SET NULL,
+  running_feet NUMERIC(6,2) NOT NULL DEFAULT 0,
+  addon_ids    JSONB        NOT NULL DEFAULT '[]'::jsonb,
+  estimate_low INTEGER      NOT NULL DEFAULT 0,
+  estimate_high INTEGER     NOT NULL DEFAULT 0,
+  breakdown    JSONB        NOT NULL DEFAULT '{}'::jsonb,
+  status       VARCHAR(20)  NOT NULL DEFAULT 'new',
+  admin_note   TEXT,
+  ip_address   VARCHAR(60),
+  created_at   TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_calc_quotes_created ON calc_quotes(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_calc_quotes_status ON calc_quotes(status);

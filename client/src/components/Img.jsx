@@ -88,7 +88,7 @@ export default function Img({
           alt={alt}
           loading={eager ? 'eager' : 'lazy'}
           decoding="async"
-          fetchPriority={eager ? 'high' : undefined}
+          fetchpriority={eager ? 'high' : undefined}
           onLoad={() => setState('ready')}
           onError={() => setState('error')}
           style={{ objectFit: fit, objectPosition: position }}

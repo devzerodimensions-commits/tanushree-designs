@@ -15,6 +15,7 @@ const ModularKitchen = lazy(() => import('./pages/ModularKitchen.jsx'));
 const OurWork = lazy(() => import('./pages/OurWork.jsx'));
 const ProjectDetail = lazy(() => import('./pages/ProjectDetail.jsx'));
 const Contact = lazy(() => import('./pages/Contact.jsx'));
+const Calculator = lazy(() => import('./pages/Calculator.jsx'));
 const NotFound = lazy(() => import('./pages/NotFound.jsx'));
 
 const AdminLayout = lazy(() => import('./admin/AdminLayout.jsx'));
@@ -36,6 +37,10 @@ const TeamPage = lazy(() => resources().then((m) => ({ default: m.TeamPage })));
 const ProcessPage = lazy(() => resources().then((m) => ({ default: m.ProcessPage })));
 const StatsPage = lazy(() => resources().then((m) => ({ default: m.StatsPage })));
 const FaqsPage = lazy(() => resources().then((m) => ({ default: m.FaqsPage })));
+const CalcLayoutsPage = lazy(() => resources().then((m) => ({ default: m.CalcLayoutsPage })));
+const CalcPackagesPage = lazy(() => resources().then((m) => ({ default: m.CalcPackagesPage })));
+const CalcAddonsPage = lazy(() => resources().then((m) => ({ default: m.CalcAddonsPage })));
+const Quotes = lazy(() => import('./admin/Quotes.jsx'));
 
 /** Shown while a route chunk is being fetched. */
 function RouteFallback() {
@@ -77,6 +82,7 @@ export default function App() {
           <Route path="/our-work" element={page(OurWork)} />
           <Route path="/our-work/:slug" element={page(ProjectDetail)} />
           <Route path="/contact-us" element={page(Contact)} />
+          <Route path="/kitchen-price-calculator" element={page(Calculator)} />
 
           {/* ------------------------------------------------- admin */}
           <Route path="/admin/login" element={<Login />} />
@@ -92,6 +98,10 @@ export default function App() {
             <Route path="process" element={<ProcessPage />} />
             <Route path="stats" element={<StatsPage />} />
             <Route path="faqs" element={<FaqsPage />} />
+            <Route path="calc-layouts" element={<CalcLayoutsPage />} />
+            <Route path="calc-packages" element={<CalcPackagesPage />} />
+            <Route path="calc-addons" element={<CalcAddonsPage />} />
+            <Route path="quotes" element={<Quotes />} />
             <Route path="pages" element={<PagesEditor />} />
             <Route path="media" element={<Media />} />
             <Route path="enquiries" element={<Enquiries />} />

@@ -187,8 +187,20 @@ export default function ModularKitchen() {
               <p className="section-lead" style={{ marginTop: 20 }}>
                 {s.appliance_text}
               </p>
+              <ul className="checks" style={{ margin: '24px 0 28px' }}>
+                <li>
+                  <Icon.check /> Auto-clean, filterless chimneys that need no filter changes
+                </li>
+                <li>
+                  <Icon.check /> Duct route planned into the cabinetry, not cut in afterwards
+                </li>
+                <li>
+                  <Icon.check /> Supplied and fitted with the kitchen, by the same team
+                </li>
+              </ul>
+
               <div className="pill-list">
-                {['Chimneys', 'Hobs', 'Built-in ovens', 'Sinks & faucets'].map(
+                {['Elica chimneys', 'Hobs', 'Built-in ovens', 'Sinks & faucets'].map(
                   (x) => (
                     <span className="pill" key={x} style={{ background: 'rgba(255,255,255,0.07)', borderColor: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.85)' }}>
                       {x}
@@ -196,9 +208,14 @@ export default function ModularKitchen() {
                   )
                 )}
               </div>
-              <a className="btn btn--gold" href={`tel:${contact.phone_raw || contact.phone}`} style={{ marginTop: 30 }}>
-                <Icon.phone /> Ask about appliances
-              </a>
+              <div className="stack" style={{ marginTop: 30 }}>
+                <a className="btn btn--gold" href={`tel:${contact.phone_raw || contact.phone}`}>
+                  <Icon.phone /> Ask about appliances
+                </a>
+                <Link className="btn btn--outline-light" to="/kitchen-price-calculator">
+                  Price my kitchen <Icon.arrowRight />
+                </Link>
+              </div>
             </Reveal>
           </div>
 

@@ -30,7 +30,7 @@ export function LogoLockup({ tone = 'dark', linked = true, className = '' }) {
       width="768"
       height="174"
       alt={name}
-      fetchPriority="high"
+      fetchpriority="high"
     />
   );
 

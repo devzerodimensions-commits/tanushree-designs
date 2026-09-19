@@ -20,6 +20,7 @@ import mediaRoutes from './routes/media.js';
 import pageRoutes from './routes/pages.js';
 import dashboardRoutes from './routes/dashboard.js';
 import bootstrapRoutes from './routes/bootstrap.js';
+import calculatorRoutes from './routes/calculator.js';
 import { crudRouter } from './routes/crud.js';
 import { migrate } from './db/migrate.js';
 import { isEmptyDatabase, seed } from './db/seed.js';
@@ -111,6 +112,7 @@ app.get('/api/health', async (_req, res) => {
 app.use('/api', invalidateOnWrite);
 
 app.use('/api/bootstrap', bootstrapRoutes);
+app.use('/api/calculator', calculatorRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/projects', projectRoutes);
@@ -212,6 +214,44 @@ app.use(
     fields: ['label', 'value', 'suffix', 'sort_order', 'is_active'],
     required: ['label'],
     intFields: ['value', 'sort_order'],
+    boolFields: ['is_active'],
+  })
+);
+
+app.use(
+  '/api/calc-layouts',
+  crudRouter({
+    table: 'calc_layouts',
+    fields: ['title', 'description', 'image_url', 'segments', 'sort_order', 'is_active'],
+    slugFrom: 'title',
+    required: ['title'],
+    jsonFields: ['segments'],
+    intFields: ['sort_order'],
+    boolFields: ['is_active'],
+  })
+);
+
+app.use(
+  '/api/calc-packages',
+  crudRouter({
+    table: 'calc_packages',
+    fields: ['title', 'tier', 'description', 'image_url', 'features', 'rate_per_ft', 'sort_order', 'is_active'],
+    slugFrom: 'title',
+    required: ['title'],
+    jsonFields: ['features'],
+    intFields: ['tier', 'rate_per_ft', 'sort_order'],
+    boolFields: ['is_active'],
+  })
+);
+
+app.use(
+  '/api/calc-addons',
+  crudRouter({
+    table: 'calc_addons',
+    fields: ['title', 'description', 'image_url', 'price', 'category', 'sort_order', 'is_active'],
+    slugFrom: 'title',
+    required: ['title'],
+    intFields: ['price', 'sort_order'],
     boolFields: ['is_active'],
   })
 );

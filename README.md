@@ -118,6 +118,7 @@ Change this immediately under **Settings → Account**.
 | `/our-work`        | Filterable + searchable project gallery                                      |
 | `/our-work/:slug`  | Project gallery with lightbox, spec table, related projects                  |
 | `/contact-us`      | Contact cards, validated form, Google Map, FAQs                              |
+| `/kitchen-price-calculator` | Four-step estimate wizard: layout → wall measurements → package + add-ons → contact details and the figure |
 
 Plus a styled 404, sticky header with mobile drawer, floating call/WhatsApp/
 back-to-top buttons, and scroll-reveal animation throughout that respects
@@ -138,6 +139,16 @@ Project this review is about**). The website then shows that room's photograph
 beside the quote, with a link through to the project — so a review is backed by
 the work it describes rather than sitting on its own.
 
+**Calculator** — Packages & Rates, Layouts, Add-ons, and Estimates (the same
+`new → contacted → quoted → won → closed` pipeline as Enquiries, showing the
+answers the visitor gave and the figure they were shown).
+
+> **Every rate ships at ₹0 on purpose.** The studio does not publish a rate
+> card, and inventing numbers would put false prices in front of customers.
+> Until you set them in **Admin → Calculator → Packages & Rates**, the
+> calculator still collects the enquiry but shows *"we will call you with a
+> figure"* instead of a price. Set the rates before you promote the page.
+
 **Site** — Page Content (hero copy, section headings and SEO per page), Media
 Library (drag-and-drop upload, folders, copy URL), Enquiries (status pipeline
 `new → contacted → quoted → won → closed`, internal notes), Settings (brand
@@ -154,13 +165,20 @@ delete confirmation, and toast feedback.
 
 Public: `GET /api/settings · /api/pages/:slug · /api/services · /api/projects ·
 /api/projects/:slug · /api/categories · /api/kitchen-layouts · /api/materials ·
-/api/testimonials · /api/team · /api/process · /api/stats · /api/faqs`, and
-`POST /api/enquiries`.
+/api/testimonials · /api/team · /api/process · /api/stats · /api/faqs ·
+/api/calculator`, and `POST /api/enquiries · POST /api/calculator/quote`.
+
+The estimate itself is worked out on the server from rates held in the
+database — never in the browser — and each wall measurement is clamped to the
+range its layout allows, so a crafted request cannot produce an invented
+figure. Add-on prices are read from the database, not from the request.
 
 Admin (Bearer token): `POST /api/auth/login`, `GET /api/dashboard`, plus
 `GET /admin/all`, `POST`, `PUT`, `PATCH :id/toggle`, `POST /reorder` and
 `DELETE :id` on every content resource, `/api/media/upload`, `/api/settings`
-and `/api/pages/:slug`.
+and `/api/pages/:slug`. The calculator adds `/api/calc-layouts`,
+`/api/calc-packages`, `/api/calc-addons` and
+`GET/PATCH/DELETE /api/calculator/quotes`.
 
 `GET /api/health` reports database connectivity.
 
