@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import Icon from '../lib/icons.jsx';
 import Img from './Img.jsx';
@@ -92,14 +91,11 @@ export default function Testimonials({ items = [], autoplay = 9000, tone = 'ligh
               </motion.div>
             </AnimatePresence>
 
-            {item.project_slug && (
-              <Link className="tmo__project" to={`/our-work/${item.project_slug}`}>
+            {item.project_title && (
+              <div className="tmo__project">
                 <span className="tmo__project-label">Their project</span>
                 <span className="tmo__project-title">{item.project_title}</span>
-                <span className="tmo__project-go">
-                  View <Icon.arrowRight />
-                </span>
-              </Link>
+              </div>
             )}
           </div>
         )}

@@ -1,29 +1,20 @@
-import { Link } from 'react-router-dom';
-import Icon from '../lib/icons.jsx';
 import Img from './Img.jsx';
 
-export default function ProjectCard({ project, tall = false }) {
+/**
+ * A finished project: the photograph and its name, nothing else.
+ *
+ * There is no per-project page, so the card is a plain tile rather than a
+ * link — no cursor change, no hover cue, nothing that promises a page that
+ * is not there.
+ */
+export default function ProjectCard({ project }) {
   return (
-    <Link
-      to={`/our-work/${project.slug}`}
-      className={`project-card${tall ? ' project-card--tall' : ''}`}
-    >
+    <article className="project-card">
       <Img src={project.cover_image} alt={project.title} />
       <span className="project-card__veil" />
       <div className="project-card__body">
-        {project.category_name && (
-          <span className="project-card__cat">{project.category_name}</span>
-        )}
         <h3>{project.title}</h3>
-        <div className="project-card__meta">
-          {project.location && <span>{project.location}</span>}
-          {project.location && project.year && <i className="divider-dot" />}
-          {project.year && <span>{project.year}</span>}
-        </div>
-        <span className="project-card__cta">
-          View project <Icon.arrowRight />
-        </span>
       </div>
-    </Link>
+    </article>
   );
 }

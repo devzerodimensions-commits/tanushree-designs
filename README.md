@@ -116,8 +116,7 @@ Change this immediately under **Settings → Account**.
 | `/about-us`        | Story, stats, principles, process, team, testimonials                        |
 | `/modular-kitchen` | Six kitchen layouts, build detail rows, filterable materials, Elica appliances, recent kitchens, FAQs |
 | `/elica-chimney`   | Elica chimneys: the three mounting types, what decides the right one, recent kitchens, chimney FAQs |
-| `/our-work`        | Filterable + searchable project gallery                                      |
-| `/our-work/:slug`  | Project gallery with lightbox, spec table, related projects                  |
+| `/our-work`        | Filterable + searchable project gallery. Each card is the photograph and the project name only — there is no per-project page |
 | `/contact-us`      | Contact cards, validated form, Google Map, FAQs                              |
 | `/kitchen-price-calculator` | Four-step estimate wizard: layout → wall measurements → package + add-ons → contact details and the figure |
 
@@ -159,6 +158,10 @@ Library (drag-and-drop upload, folders, copy URL), Enquiries (status pipeline
 `new → contacted → quoted → won → closed`, internal notes), Settings (brand
 colours, logo, contact details, social links, announcement bar, hero slides,
 trust strip, SEO defaults, account).
+
+A project's gallery images are still stored and editable, but the public site
+shows only the cover image and the title — the per-project page was removed at
+the studio's request, so nothing renders the gallery today.
 
 Common behaviour across every content screen: search, show/hide without
 deleting, display ordering, image picker (upload / media library / paste URL),

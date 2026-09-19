@@ -14,7 +14,6 @@ const About = lazy(() => import('./pages/About.jsx'));
 const ModularKitchen = lazy(() => import('./pages/ModularKitchen.jsx'));
 const Elica = lazy(() => import('./pages/Elica.jsx'));
 const OurWork = lazy(() => import('./pages/OurWork.jsx'));
-const ProjectDetail = lazy(() => import('./pages/ProjectDetail.jsx'));
 const Contact = lazy(() => import('./pages/Contact.jsx'));
 const Calculator = lazy(() => import('./pages/Calculator.jsx'));
 const NotFound = lazy(() => import('./pages/NotFound.jsx'));
@@ -83,7 +82,6 @@ export default function App() {
           <Route path="/modular-kitchen" element={page(ModularKitchen)} />
           <Route path="/elica-chimney" element={page(Elica)} />
           <Route path="/our-work" element={page(OurWork)} />
-          <Route path="/our-work/:slug" element={page(ProjectDetail)} />
           <Route path="/contact-us" element={page(Contact)} />
           <Route path="/kitchen-price-calculator" element={page(Calculator)} />
 
