@@ -126,6 +126,11 @@ export const MaterialsPage = () => (
         required: true,
         half: true,
         options: [
+          // Every row seeded so far is a 'promise' — the "what you get" list
+          // on the kitchen page. Without it here, opening one of those rows
+          // showed a category it could not represent, and saving would have
+          // quietly filed it as a shutter finish.
+          { value: 'promise', label: 'What you get (promise)' },
           { value: 'finish', label: 'Shutter finish' },
           { value: 'core', label: 'Core material' },
           { value: 'countertop', label: 'Countertop' },

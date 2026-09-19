@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { publicApi } from '../lib/api.js';
 import { useApi } from '../hooks/useApi.js';
@@ -11,12 +11,22 @@ import { Banner, CtaBand, SectionHead } from '../components/Sections.jsx';
 import ProjectCard from '../components/ProjectCard.jsx';
 import Faq from '../components/Faq.jsx';
 
-const MATERIAL_TABS = [
-  { key: 'all', label: 'Everything' },
-  { key: 'finish', label: 'Shutter Finishes' },
-  { key: 'core', label: 'Core Materials' },
-  { key: 'countertop', label: 'Countertops' },
-];
+/**
+ * Labels for the material categories we know about. Anything else the studio
+ * adds is title-cased from its own value, so a new category still reads
+ * properly without a code change.
+ */
+const CATEGORY_LABELS = {
+  finish: 'Shutter Finishes',
+  core: 'Core Materials',
+  countertop: 'Countertops',
+  hardware: 'Hardware',
+  promise: 'What You Get',
+};
+
+const labelFor = (key) =>
+  CATEGORY_LABELS[key] ||
+  key.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 
 export default function ModularKitchen() {
   const { contact } = useSite();
@@ -27,6 +37,23 @@ export default function ModularKitchen() {
 
   const p = d.page;
   const s = p?.sections ?? {};
+
+  // Built from the categories that are actually present, so a filter can
+  // never offer something with nothing behind it. The tabs were hard-coded to
+  // finish/core/countertop while every row in the database was a 'promise',
+  // which left three buttons that each emptied the section when clicked.
+  const tabs = useMemo(() => {
+    const present = [...new Set((d.materials ?? []).map((m) => m.category).filter(Boolean))];
+    // One group needs no filter.
+    if (present.length < 2) return [];
+    return [{ key: 'all', label: 'Everything' }, ...present.map((k) => ({ key: k, label: labelFor(k) }))];
+  }, [d.materials]);
+
+  // If the chosen tab stops existing — the studio recategorised its last row —
+  // fall back rather than showing an empty grid under a selected filter.
+  useEffect(() => {
+    if (tab !== 'all' && !tabs.some((t) => t.key === tab)) setTab('all');
+  }, [tabs, tab]);
 
   const shownMaterials = useMemo(() => {
     const list = d.materials ?? [];
@@ -138,18 +165,20 @@ export default function ModularKitchen() {
             text={s.materials_text}
           />
 
-          <Reveal className="work-filters" style={{ justifyContent: 'center' }}>
-            {MATERIAL_TABS.map((t) => (
-              <button
-                key={t.key}
-                type="button"
-                className={`filter-chip${tab === t.key ? ' is-active' : ''}`}
-                onClick={() => setTab(t.key)}
-              >
-                {t.label}
-              </button>
-            ))}
-          </Reveal>
+          {tabs.length > 0 && (
+            <Reveal className="work-filters" style={{ justifyContent: 'center' }}>
+              {tabs.map((t) => (
+                <button
+                  key={t.key}
+                  type="button"
+                  className={`filter-chip${tab === t.key ? ' is-active' : ''}`}
+                  onClick={() => setTab(t.key)}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </Reveal>
+          )}
 
           <RevealGroup className="material-grid" key={tab}>
             {shownMaterials.map((m) => (
