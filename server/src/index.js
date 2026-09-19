@@ -28,6 +28,7 @@ import {
   seed,
   seedCalculator,
   seedElicaPage,
+  resetAdminPassword,
   seedMissingSectionKeys,
   seedTeamPhotos,
 } from './db/seed.js';
@@ -361,6 +362,17 @@ async function setupDatabase() {
       const pages = await seedMissingSectionKeys();
       if (pages) console.log(`[startup] new section keys added to ${pages} page(s)`);
     }
+    const reset = await resetAdminPassword();
+    if (reset) {
+      console.warn('');
+      console.warn('  ============================================================');
+      console.warn(`  PASSWORD RESET: ${reset} now uses the current ADMIN_PASSWORD.`);
+      console.warn('  Remove the ADMIN_PASSWORD_RESET variable in Render now, or');
+      console.warn('  every future deploy will rewrite the password again.');
+      console.warn('  ============================================================');
+      console.warn('');
+    }
+
     console.log('[startup] database ready');
   } catch (err) {
     console.error('[startup] database setup failed:', err.message);

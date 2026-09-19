@@ -272,6 +272,26 @@ and resolve their paths from the source files, not the working directory.
 
 ---
 
+## If you lose the admin password
+
+The password lives only in Render, as the `ADMIN_PASSWORD` environment
+variable. It is never in this repository. To read it: **Render → your service →
+Environment → `ADMIN_PASSWORD` → Reveal**.
+
+If it is gone, set a new one:
+
+1. Render → Environment → set `ADMIN_PASSWORD` to the new password.
+2. Add `ADMIN_PASSWORD_RESET` = `true`.
+3. Save. The service restarts and the log prints a `PASSWORD RESET` banner.
+4. Sign in with the new password.
+5. **Delete `ADMIN_PASSWORD_RESET`.** Leave it on and every future deploy
+   rewrites the password from that variable again.
+
+Changing `ADMIN_PASSWORD` on its own does nothing — the seed that reads it only
+runs on an empty database.
+
+---
+
 ## Deploying to Render
 
 `render.yaml` is a Blueprint: in Render choose **New + → Blueprint** and point

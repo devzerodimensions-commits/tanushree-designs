@@ -899,6 +899,44 @@ export async function seedMissingSectionKeys() {
   return touched;
 }
 
+/**
+ * Set the owner's password back to whatever ADMIN_PASSWORD currently is.
+ *
+ * The seed only runs on an empty database, so once the site is live there is
+ * otherwise no way back in for someone who has lost the password — changing
+ * the environment variable alone does nothing, because nothing re-reads it.
+ *
+ * Guarded behind ADMIN_PASSWORD_RESET=true so it cannot fire by accident on
+ * an ordinary deploy. It is deliberately noisy in the log, because leaving
+ * the flag switched on means every future deploy silently rewrites the
+ * password — which is how a stale environment variable quietly becomes the
+ * live one.
+ *
+ * @returns {Promise<string|null>} the email that was reset, or null
+ */
+export async function resetAdminPassword() {
+  if (process.env.ADMIN_PASSWORD_RESET !== 'true') return null;
+
+  const email = process.env.ADMIN_EMAIL || 'admin@tanushreedesigns.in';
+  const password = process.env.ADMIN_PASSWORD;
+
+  if (!password || password.length < 8) {
+    console.warn('[reset] ADMIN_PASSWORD_RESET is on but ADMIN_PASSWORD is missing or too short');
+    return null;
+  }
+
+  const hash = await bcrypt.hash(password, 10);
+  const { rowCount } = await pool.query(
+    'UPDATE admin_users SET password_hash = $2 WHERE email = $1',
+    [email, hash]
+  );
+  if (!rowCount) {
+    console.warn(`[reset] no admin account found for ${email}`);
+    return null;
+  }
+  return email;
+}
+
 export async function seedTeamPhotos() {
   let filled = 0;
   for (const m of TEAM) {
