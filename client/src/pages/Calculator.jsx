@@ -278,47 +278,53 @@ export default function Calculator() {
                 {/* ---------------------- 2. measurements */}
                 {step === 1 && layout && (
                   <>
-                    <h2 className="calc-q">Now check the measurements</h2>
-                    <p className="calc-hint">
-                      Standard sizes are filled in already — adjust them to match your room.
-                    </p>
+                    <h2 className="calc-q">Now review the measurements for accuracy</h2>
 
                     <div className="calc-measure">
                       <div className="calc-measure__plan">
                         <img src={layout.image_url} alt={`${layout.title} plan`} />
                       </div>
 
+                      <p className="calc-standard">Standard size has been set for your convenience</p>
+
                       <div className="calc-measure__fields">
-                        {(layout.segments ?? []).map((s) => (
-                          <div className="calc-field" key={s.label}>
-                            <label htmlFor={`seg-${s.label}`}>
-                              <span className="calc-field__tag">{s.label}</span>
-                              Wall length
-                            </label>
-                            <div className="calc-field__row">
-                              <input
+                        {(layout.segments ?? []).map((s) => {
+                          // Whole feet between the layout's own limits, so the
+                          // list can never offer a size the studio does not build.
+                          const min = Math.ceil(Number(s.min ?? 3));
+                          const max = Math.floor(Number(s.max ?? 24));
+                          const choices = Array.from({ length: max - min + 1 }, (_, i) => min + i);
+
+                          return (
+                            <div className="calc-field" key={s.label}>
+                              <label className="calc-field__tag" htmlFor={`seg-${s.label}`}>
+                                {s.label}
+                              </label>
+                              <select
                                 id={`seg-${s.label}`}
-                                type="range"
-                                min={s.min ?? 4}
-                                max={s.max ?? 24}
-                                step="0.5"
-                                value={segments[s.label] ?? s.default ?? s.min ?? 0}
+                                value={segments[s.label] ?? s.default ?? min}
                                 onChange={(e) =>
                                   setSegments((prev) => ({
                                     ...prev,
                                     [s.label]: Number(e.target.value),
                                   }))
                                 }
-                              />
-                              <output>{segments[s.label] ?? s.default ?? 0} ft</output>
+                              >
+                                {choices.map((n) => (
+                                  <option key={n} value={n}>
+                                    {n}
+                                  </option>
+                                ))}
+                              </select>
+                              <span className="calc-field__unit">ft.</span>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
+                      </div>
 
-                        <div className="calc-total">
-                          <span>Total running length</span>
-                          <b>{runningFeet} ft</b>
-                        </div>
+                      <div className="calc-total">
+                        <span>Total running length</span>
+                        <b>{runningFeet} ft</b>
                       </div>
                     </div>
                   </>

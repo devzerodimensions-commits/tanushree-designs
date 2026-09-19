@@ -1791,12 +1791,11 @@
 .calc-card__body small { display: block; color: var(--muted); font-size: 0.82rem; line-height: 1.5; margin-top: 4px; }
 
 /* ---- measurements ---- */
+/* Plan, then the standard-size notice, then the fields — stacked and centred
+   in one column, rather than the plan sitting beside the inputs. */
 .calc-measure {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: clamp(24px, 4vw, 48px);
-  align-items: center;
-  margin-top: 26px;
+  width: min(560px, 100%);
+  margin: 26px auto 0;
 }
 @media (max-width: 800px) { .calc-measure { grid-template-columns: 1fr; } }
 
@@ -1807,15 +1806,27 @@
 }
 .calc-measure__plan img { width: 100%; height: auto; border-radius: 10px; }
 
-.calc-field { margin-bottom: 22px; }
-.calc-field label {
-  display: flex;
+/* The "standard size" note, set apart so it reads as information rather than
+   an error. */
+.calc-standard {
+  margin: 18px 0 22px;
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  background: #fdf3dc;
+  border: 1px solid #f2e0b5;
+  color: #7a5a18;
+  font-size: 0.84rem;
+  text-align: center;
+}
+
+/* One row per wall: the letter, the size, then the unit. */
+.calc-measure__fields { display: grid; gap: 14px; }
+
+.calc-field {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) 34px;
   align-items: center;
-  gap: 10px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--ink-soft);
-  margin-bottom: 10px;
+  gap: 14px;
 }
 .calc-field__tag {
   width: 26px; height: 26px;
@@ -1825,41 +1836,15 @@
   color: #fff;
   font-weight: 700;
   font-size: 0.78rem;
+  margin: 0;
 }
-.calc-field__row { display: flex; align-items: center; gap: 16px; }
-.calc-field__row output {
-  min-width: 68px;
-  text-align: right;
-  font-weight: 600;
+.calc-field select {
+  width: 100%;
+  padding: 13px 16px;
+  font-size: 0.95rem;
   font-variant-numeric: tabular-nums;
-  color: var(--maroon);
 }
-
-.calc-field input[type="range"] {
-  flex: 1;
-  -webkit-appearance: none;
-  appearance: none;
-  height: 5px;
-  border-radius: 999px;
-  background: var(--cream-deep);
-  outline-offset: 6px;
-}
-.calc-field input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 22px; height: 22px;
-  border-radius: 50%;
-  background: var(--maroon);
-  border: 3px solid #fff;
-  box-shadow: 0 2px 8px rgba(125, 20, 22, 0.5);
-  cursor: grab;
-}
-.calc-field input[type="range"]::-moz-range-thumb {
-  width: 22px; height: 22px;
-  border-radius: 50%;
-  background: var(--maroon);
-  border: 3px solid #fff;
-  cursor: grab;
-}
+.calc-field__unit { font-size: 0.9rem; color: var(--muted); }
 
 .calc-total {
   display: flex;
