@@ -73,12 +73,16 @@ export default function Header() {
               {contact.phone}
             </a>
             <a
-              className="btn btn--sm"
+              className="btn btn--sm header__wa"
               href={`https://wa.me/${contact.whatsapp}`}
               target="_blank"
               rel="noreferrer"
+              aria-label="WhatsApp us"
             >
-              WhatsApp Us
+              <Icon.whatsapp />
+              {/* Dropped to the glyph alone where the header runs out of room,
+                  so the phone number does not have to give up its line. */}
+              <span>WhatsApp Us</span>
             </a>
             <button
               type="button"

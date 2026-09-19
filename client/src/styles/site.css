@@ -134,9 +134,20 @@
 .nav__link { white-space: nowrap; }
 /* Between the collapse point and a roomy desktop there is not enough slack
    for the full 30px rhythm. */
-@media (min-width: 1041px) and (max-width: 1280px) {
-  .nav { gap: 20px; }
+/* Seven nav items, a phone number and a call-to-action need about 1300px to
+   sit side by side. Between the collapse point and that, the rhythm tightens
+   and the WhatsApp button drops to its glyph — which buys back more than
+   enough room for the number to keep its single line. */
+/* No upper bound on purpose. The shell is capped at 1280px, so the header has
+   1152px to work with on a 1400px screen and on a 2560px one alike — widening
+   the window never buys it another pixel. Seven nav items, the phone number
+   and a labelled button want about 1285px, so the label goes and the rhythm
+   tightens for the whole desktop range rather than for a band of it. */
+@media (min-width: 1260px) {
+  .nav { gap: 16px; }
   .nav__link { font-size: 0.84rem; }
+  .header__wa span { display: none; }
+  .header__wa { padding-left: 13px; padding-right: 13px; }
 }
 
 .nav__link {
@@ -176,8 +187,12 @@
   font-weight: 500;
   color: var(--ink);
   transition: color var(--t-fast);
+  /* A phone number is one thing to read. Without this it broke after the
+     "+91-" and sat over two lines as soon as the header got tight. */
+  white-space: nowrap;
+  flex: none;
 }
-.header__phone svg { width: 17px; height: 17px; color: var(--maroon); }
+.header__phone svg { width: 17px; height: 17px; color: var(--maroon); flex: none; }
 .header__phone:hover { color: var(--maroon); }
 
 /* burger */
@@ -201,7 +216,7 @@
 .burger.is-open span:nth-child(2) { opacity: 0; }
 .burger.is-open span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
 
-@media (max-width: 1040px) {
+@media (max-width: 1259px) {
   .nav, .header__phone { display: none; }
   .burger { display: grid; }
   .header__inner { min-height: 70px; }
