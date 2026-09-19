@@ -271,6 +271,7 @@
   transition: transform var(--t-fast), box-shadow var(--t-fast);
 }
 .kpi:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.kpi:focus-visible { outline: 2px solid var(--maroon); outline-offset: 3px; }
 .kpi::after {
   content: '';
   position: absolute;
@@ -290,9 +291,9 @@
   color: #fff;
   margin-bottom: 16px;
 }
-.kpi__icon svg { width: 18px; height: 18px; }
+.kpi__icon svg { display: block; width: 20px; height: 20px; }
 .kpi b { position: relative; z-index: 1; display: block; font-size: 1.95rem; font-weight: 500; line-height: 1; letter-spacing: -0.02em; }
-.kpi span { position: relative; z-index: 1; display: block; margin-top: 7px; font-size: 0.8rem; color: var(--muted); }
+.kpi__label { position: relative; z-index: 1; display: block; margin-top: 7px; font-size: 0.8rem; color: var(--muted); }
 
 .admin-cols {
   display: grid;

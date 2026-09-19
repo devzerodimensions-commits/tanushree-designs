@@ -58,7 +58,7 @@ export default function Dashboard() {
                   <Glyph />
                 </span>
                 <b>{loading ? '—' : (counts[k.key] ?? 0)}</b>
-                <span>{k.label}</span>
+                <span className="kpi__label">{k.label}</span>
               </Link>
             );
           })}
