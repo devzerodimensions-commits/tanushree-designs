@@ -23,7 +23,7 @@ import bootstrapRoutes from './routes/bootstrap.js';
 import calculatorRoutes from './routes/calculator.js';
 import { crudRouter } from './routes/crud.js';
 import { migrate } from './db/migrate.js';
-import { isEmptyDatabase, seed } from './db/seed.js';
+import { isEmptyDatabase, seed, seedCalculator } from './db/seed.js';
 
 dotenv.config();
 
@@ -324,6 +324,11 @@ async function setupDatabase() {
     if (await isEmptyDatabase()) {
       console.log('[startup] empty database detected, seeding initial content');
       await seed();
+    } else if (await seedCalculator()) {
+      // The calculator shipped after the site was already live, so its tables
+      // exist but are empty on an established database. Fill them once; this
+      // skips any table that already has rows, so nothing is overwritten.
+      console.log('[startup] calculator options added (all rates 0 — set them in Admin)');
     }
     console.log('[startup] database ready');
   } catch (err) {

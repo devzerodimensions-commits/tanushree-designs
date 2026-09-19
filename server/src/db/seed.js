@@ -707,30 +707,7 @@ async function run() {
   console.log(`  faqs            -> ${FAQS.length}`);
 
   // ---------------------------------------------------- calculator
-  await pool.query('DELETE FROM calc_layouts');
-  for (const [i, l] of CALC_LAYOUTS.entries()) {
-    await pool.query(
-      `INSERT INTO calc_layouts (title, slug, description, image_url, segments, sort_order)
-       VALUES ($1,$2,$3,$4,$5::jsonb,$6)`,
-      [l.title, slugify(l.title), l.description, l.image_url, JSON.stringify(l.segments), i]
-    );
-  }
-  await pool.query('DELETE FROM calc_packages');
-  for (const [i, k] of CALC_PACKAGES.entries()) {
-    await pool.query(
-      `INSERT INTO calc_packages (title, slug, tier, description, image_url, features, rate_per_ft, sort_order)
-       VALUES ($1,$2,$3,$4,$5,$6::jsonb,$7,$8)`,
-      [k.title, slugify(k.title), k.tier, k.description, k.image_url, JSON.stringify(k.features), k.rate_per_ft, i]
-    );
-  }
-  await pool.query('DELETE FROM calc_addons');
-  for (const [i, a] of CALC_ADDONS.entries()) {
-    await pool.query(
-      `INSERT INTO calc_addons (title, slug, description, image_url, price, category, sort_order)
-       VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-      [a.title, slugify(a.title), a.description, a.image_url, a.price, a.category, i]
-    );
-  }
+  await seedCalculator({ replace: true });
   console.log(
     `  calculator      -> ${CALC_LAYOUTS.length} layouts, ${CALC_PACKAGES.length} packages, ${CALC_ADDONS.length} add-ons`
   );
@@ -759,6 +736,80 @@ export { run as seed };
  * Lets the server seed a fresh managed database exactly once, without ever
  * overwriting content someone has since edited.
  */
+/**
+ * Fill the calculator tables.
+ *
+ * The calculator arrived after the site was already live, so this has to be
+ * safe to run against a database full of real content: by default it only
+ * touches a table that is empty, and it never overwrites rates the studio has
+ * since entered. `replace: true` is the full-seed behaviour.
+ *
+ * @returns {Promise<boolean>} whether anything was written
+ */
+export async function seedCalculator({ replace = false } = {}) {
+  const isEmpty = async (table) => {
+    const { rows } = await pool.query(`SELECT COUNT(*)::int AS n FROM ${table}`);
+    return rows[0].n === 0;
+  };
+
+  let wrote = false;
+
+  if (replace || (await isEmpty('calc_layouts'))) {
+    if (replace) await pool.query('DELETE FROM calc_layouts');
+    for (const [i, l] of CALC_LAYOUTS.entries()) {
+      await pool.query(
+        `INSERT INTO calc_layouts (title, slug, description, image_url, segments, sort_order)
+         VALUES ($1,$2,$3,$4,$5::jsonb,$6)`,
+        [l.title, slugify(l.title), l.description, l.image_url, JSON.stringify(l.segments), i]
+      );
+    }
+    wrote = true;
+  }
+
+  if (replace || (await isEmpty('calc_packages'))) {
+    if (replace) await pool.query('DELETE FROM calc_packages');
+    for (const [i, k] of CALC_PACKAGES.entries()) {
+      await pool.query(
+        `INSERT INTO calc_packages (title, slug, tier, description, image_url, features, rate_per_ft, sort_order)
+         VALUES ($1,$2,$3,$4,$5,$6::jsonb,$7,$8)`,
+        [k.title, slugify(k.title), k.tier, k.description, k.image_url, JSON.stringify(k.features), k.rate_per_ft, i]
+      );
+    }
+    wrote = true;
+  }
+
+  if (replace || (await isEmpty('calc_addons'))) {
+    if (replace) await pool.query('DELETE FROM calc_addons');
+    for (const [i, a] of CALC_ADDONS.entries()) {
+      await pool.query(
+        `INSERT INTO calc_addons (title, slug, description, image_url, price, category, sort_order)
+         VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+        [a.title, slugify(a.title), a.description, a.image_url, a.price, a.category, i]
+      );
+    }
+    wrote = true;
+  }
+
+  // The headline, disclaimer and estimate spread live in settings. Only add
+  // the row if it is missing, so wording the studio has edited survives.
+  const calcSettings = SETTINGS.find((x) => x.key === 'calculator');
+  if (calcSettings) {
+    await pool.query(
+      `INSERT INTO site_settings (key, value, label, group_name)
+       VALUES ($1, $2::jsonb, $3, $4)
+       ON CONFLICT (key) DO NOTHING`,
+      [
+        calcSettings.key,
+        JSON.stringify(calcSettings.value),
+        calcSettings.label,
+        calcSettings.group_name,
+      ]
+    );
+  }
+
+  return wrote;
+}
+
 export async function isEmptyDatabase() {
   try {
     const { rows } = await pool.query('SELECT COUNT(*)::int AS n FROM admin_users');
