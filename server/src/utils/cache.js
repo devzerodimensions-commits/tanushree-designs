@@ -29,6 +29,28 @@ export function cacheClear() {
   store.clear();
 }
 
+/**
+ * While this is false nothing is stored and nothing is served from store.
+ *
+ * The port is opened before migrations and back-filling run, so the server
+ * can answer — and cache — a request describing a database that is still
+ * half-populated. That half-a-page then stood for the whole TTL, which from
+ * the outside looked like "a section is missing until I refresh". Suspending
+ * the cache until setup finishes closes the window, including for a request
+ * that was already in flight when setup completed.
+ */
+let enabled = true;
+
+export function cacheSuspend() {
+  enabled = false;
+  store.clear();
+}
+
+export function cacheResume() {
+  store.clear();
+  enabled = true;
+}
+
 export function cacheStats() {
   return { entries: store.size, keys: [...store.keys()] };
 }
@@ -40,7 +62,7 @@ export function cacheStats() {
 export function cached(key, ttl = DEFAULT_TTL) {
   return (req, res, next) => {
     // Only public GETs are cacheable; admin reads must always be fresh.
-    if (req.method !== 'GET' || req.headers.authorization) return next();
+    if (!enabled || req.method !== 'GET' || req.headers.authorization) return next();
 
     const full = typeof key === 'function' ? key(req) : key;
     const hit = cacheGet(full);

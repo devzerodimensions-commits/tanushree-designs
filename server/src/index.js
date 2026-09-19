@@ -9,7 +9,7 @@ import dotenv from 'dotenv';
 
 import { pool } from './db/pool.js';
 import { ApiError } from './utils/http.js';
-import { cached, invalidateOnWrite } from './utils/cache.js';
+import { cacheResume, cacheSuspend, cached, invalidateOnWrite } from './utils/cache.js';
 import { UPLOAD_DIR } from './middleware/upload.js';
 
 import authRoutes from './routes/auth.js';
@@ -361,6 +361,8 @@ async function setupDatabase() {
   } catch (err) {
     console.error('[startup] database setup failed:', err.message);
     console.error('[startup] the site is serving; /api/health reports the database state');
+  } finally {
+    cacheResume();
   }
 }
 
@@ -370,7 +372,11 @@ const server = app.listen(PORT, () => {
   console.log(`  Health check           ->  /api/health
 `);
 
-  if (process.env.RUN_MIGRATIONS === 'true') setupDatabase();
+  if (process.env.RUN_MIGRATIONS === 'true') {
+    // Answer honestly but do not remember the answer until the data is there.
+    cacheSuspend();
+    setupDatabase();
+  }
 });
 
 /**
