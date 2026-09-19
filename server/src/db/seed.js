@@ -502,6 +502,153 @@ const CALC_PACKAGES = [
 ];
 
 /** Optional extras, priced individually. */
+/**
+ * "Build your own package" — the questions, in the order they are asked.
+ *
+ * `mode` decides how the step behaves: single picks one, multi picks any,
+ * yesno is a single priced yes/no.
+ */
+const CALC_GROUPS = [
+  {
+    key: 'core',
+    question: 'Materials for cabinets and shutters. Take your pick.',
+    help_text: 'This is the board the carcass is built from. It decides how the kitchen handles water and years of use.',
+    mode: 'single',
+  },
+  {
+    key: 'countertop',
+    question: "Let's add a granite countertop?",
+    help_text: 'Laid over laminated ply. Priced by the running foot of counter.',
+    mode: 'yesno',
+  },
+  {
+    key: 'loft',
+    question: 'Do you want to add a loft?',
+    help_text: 'Storage above the wall units, for the things you reach for twice a year.',
+    mode: 'yesno',
+  },
+  {
+    key: 'finish',
+    question: 'Pick a finish for base & wall cabinets',
+    help_text: 'The surface you see and touch every day.',
+    mode: 'single',
+  },
+  {
+    key: 'accessories',
+    question: 'Now choose the accessories for your kitchen.',
+    help_text: 'Baskets, pull-outs and organisers inside the units.',
+    mode: 'single',
+  },
+  {
+    key: 'services',
+    question: 'Select the on-site services you would require.',
+    help_text: 'Work in the room itself, before and around the kitchen going in.',
+    mode: 'multi',
+  },
+  {
+    key: 'appliances',
+    question: 'Here come the appliances. Your pick?',
+    help_text: 'Supplied and fitted with the kitchen by the same team.',
+    mode: 'multi',
+  },
+];
+
+/**
+ * The answers to those questions.
+ *
+ * PLACEHOLDER RATES — every `rate` below is 0 on purpose, exactly as with the
+ * packages. The `tier` values are only the rupee symbols shown as a rough
+ * signal of relative cost; they are not money and nothing is calculated from
+ * them. Real figures go in Admin -> Calculator -> Build Your Own.
+ *
+ * `unit` decides how a rate becomes a number:
+ *   per_ft    rate x running feet of kitchen
+ *   per_sqft  rate x shutter area (running feet x the height in settings)
+ *   flat      rate once, however big the kitchen
+ */
+const CALC_OPTIONS = [
+  // ---- core board -------------------------------------------------------
+  { group_key: 'core', title: 'HDF-HMR', tier: 4, unit: 'per_sqft',
+    description: 'High density, high moisture resistance, and a solid screw-holding capacity.',
+    pro_tip: 'Load-bearing strength without moving to solid wood.' },
+  { group_key: 'core', title: 'MDF', tier: 2, unit: 'per_sqft',
+    description: 'Seamless and free of knots, with an even surface for finishes.',
+    pro_tip: 'Takes a smooth finish better than any board here.' },
+  { group_key: 'core', title: 'MR Plywood', tier: 2, unit: 'per_sqft',
+    description: 'Moisture resistant and termite treated.',
+    pro_tip: 'The sensible baseline for a dry kitchen on a budget.' },
+  { group_key: 'core', title: 'BWR Plywood', tier: 3, unit: 'per_sqft',
+    description: 'Boiling water resistant, for areas that see regular splashing.',
+    pro_tip: 'Worth it under the sink even if you use MR elsewhere.' },
+  { group_key: 'core', title: 'BWP Plywood', tier: 4, unit: 'per_sqft',
+    description: 'Boiling water proof, for prolonged exposure to water and steam.',
+    pro_tip: 'Choose this if the kitchen is used hard, every day.' },
+
+  // ---- countertop -------------------------------------------------------
+  { group_key: 'countertop', title: 'Granite countertop', tier: 3, unit: 'per_ft',
+    description: 'Laid over laminated ply, without backsplash.',
+    pro_tip: 'Hard wearing and repairable — a long-life surface.' },
+
+  // ---- loft -------------------------------------------------------------
+  { group_key: 'loft', title: 'Loft storage', tier: 2, unit: 'per_ft',
+    description: 'A run of closed storage above the wall units.',
+    pro_tip: 'The cheapest storage you will ever add to a kitchen.' },
+
+  // ---- shutter finish ---------------------------------------------------
+  { group_key: 'finish', title: 'Matte Laminate', tier: 2, unit: 'per_sqft',
+    description: 'A smooth, durable finish with a clean, low-sheen look.',
+    pro_tip: 'Hides fingerprints better than anything glossy.' },
+  { group_key: 'finish', title: 'Glossy Laminate', tier: 2, unit: 'per_sqft',
+    description: 'A reflective surface that bounces light around a small room.',
+    pro_tip: 'Makes a narrow kitchen feel wider.' },
+  { group_key: 'finish', title: 'Acrylic', tier: 4, unit: 'per_sqft',
+    description: 'A deep, mirror-like finish with strong colour.',
+    pro_tip: 'The richest looking of the lot, and the least forgiving of dust.' },
+  { group_key: 'finish', title: 'PU (Polyurethane)', tier: 4, unit: 'per_sqft',
+    description: 'Sprayed and cured to any colour, matte or gloss.',
+    pro_tip: 'Pick this when the colour has to be exact.' },
+  { group_key: 'finish', title: 'Membrane', tier: 2, unit: 'per_sqft',
+    description: 'A moulded surface that wraps profiles and shaker frames in one piece.',
+    pro_tip: 'The practical way to get a classic shaker look.' },
+
+  // ---- accessories ------------------------------------------------------
+  { group_key: 'accessories', title: 'Basic', tier: 2, unit: 'per_ft',
+    description: 'The everyday set: cutlery tray, plate rack and a pull-out or two.',
+    pro_tip: 'Enough to get a working kitchen started.' },
+  { group_key: 'accessories', title: 'Standard', tier: 3, unit: 'per_ft',
+    description: 'Adds tandem drawers, corner units and taller pull-outs.',
+    pro_tip: 'Where most kitchens end up once the drawers are in daily use.' },
+  { group_key: 'accessories', title: 'Premium', tier: 4, unit: 'per_ft',
+    description: 'Soft-close throughout, organisers, and a full-height pantry unit.',
+    pro_tip: 'Choose this if the kitchen is the busiest room in the house.' },
+
+  // ---- on-site services -------------------------------------------------
+  { group_key: 'services', title: 'Painting', tier: 2, unit: 'flat',
+    description: 'Walls and ceiling made good around the new kitchen.' },
+  { group_key: 'services', title: 'Plumbing', tier: 2, unit: 'flat',
+    description: 'Moving or adding inlets and drainage for sink and appliances.' },
+  { group_key: 'services', title: 'Electrical', tier: 2, unit: 'flat',
+    description: 'Points for the hob, chimney, oven and under-cabinet lighting.' },
+  { group_key: 'services', title: 'Platform', tier: 3, unit: 'per_ft',
+    description: 'Building or altering the counter platform itself.' },
+  { group_key: 'services', title: 'Dado tiling', tier: 2, unit: 'per_ft',
+    description: 'Tiling the wall between counter and wall units.' },
+
+  // ---- appliances -------------------------------------------------------
+  { group_key: 'appliances', title: 'Hob', tier: 2, unit: 'flat',
+    description: 'Glass-top gas hob cut into the counter.' },
+  { group_key: 'appliances', title: 'Chimney', tier: 3, unit: 'flat',
+    description: 'Auto-clean filterless chimney, ducted through the cabinetry.' },
+  { group_key: 'appliances', title: 'Faucets & Sink', tier: 2, unit: 'flat',
+    description: 'Stainless or quartz sink with a pull-out faucet.' },
+  { group_key: 'appliances', title: 'Built-in Microwave', tier: 3, unit: 'flat',
+    description: 'Housed in a tall unit at eye level.' },
+  { group_key: 'appliances', title: 'Built-in Oven', tier: 4, unit: 'flat',
+    description: 'Built into the tall unit beside the microwave.' },
+  { group_key: 'appliances', title: 'Refrigerator', tier: 4, unit: 'flat',
+    description: 'Planned into the run with the clearances it needs.' },
+];
+
 const CALC_ADDONS = [
   { title: 'Elica Kitchen Chimney', category: 'appliance', description: 'Auto-clean filterless chimney, ducted out through the utility.', image_url: P.appliances, price: 0 },
   { title: 'Built-in Hob', category: 'appliance', description: 'Glass-top gas hob cut into the counter.', image_url: P.kitchen3, price: 0 },
@@ -838,8 +985,28 @@ async function run() {
 
   // ---------------------------------------------------- calculator
   await seedCalculator({ replace: true });
+  await pool.query('DELETE FROM calc_options');
+  await pool.query('DELETE FROM calc_option_groups');
+  for (const [i, g] of CALC_GROUPS.entries()) {
+    await pool.query(
+      `INSERT INTO calc_option_groups (key, question, help_text, mode, sort_order)
+       VALUES ($1,$2,$3,$4,$5)`,
+      [g.key, g.question, g.help_text, g.mode, i]
+    );
+  }
+  for (const [i, o] of CALC_OPTIONS.entries()) {
+    await pool.query(
+      `INSERT INTO calc_options (group_key, title, description, pro_tip, image_url, tier, rate, unit, sort_order)
+       VALUES ($1,$2,$3,$4,$5,$6,0,$7,$8)`,
+      [o.group_key, o.title, o.description, o.pro_tip ?? null, o.image_url ?? null, o.tier ?? 2, o.unit ?? 'per_ft', i]
+    );
+  }
+
   console.log(
     `  calculator      -> ${CALC_LAYOUTS.length} layouts, ${CALC_PACKAGES.length} packages, ${CALC_ADDONS.length} add-ons`
+  );
+  console.log(
+    `  build your own  -> ${CALC_GROUPS.length} questions, ${CALC_OPTIONS.length} answers`
   );
   console.log('                     rates are 0 — set them in Admin -> Calculator');
 

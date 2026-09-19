@@ -147,9 +147,27 @@ Project this review is about**). The website then shows that room's photograph
 beside the quote, with a link through to the project — so a review is backed by
 the work it describes rather than sitting on its own.
 
-**Calculator** — Packages & Rates, Layouts, Add-ons, and Estimates (the same
+**Calculator** — Packages & Rates, Layouts, Add-ons, Build Your Own
+(Questions and Answers), and Estimates (the same
 `new → contacted → quoted → won → closed` pipeline as Enquiries, showing the
 answers the visitor gave and the figure they were shown).
+
+**Build your own package** is the fourth option on the package step. It asks a
+run of questions — core board, countertop, loft, finish, accessories, on-site
+services, appliances — and each answer carries a price and the unit it is
+measured in:
+
+| unit | what it multiplies by |
+| ---- | --------------------- |
+| `per_ft` | running feet of kitchen |
+| `per_sqft` | shutter area: running feet × cabinet height |
+| `flat` | once, whatever the size |
+
+The estimate then shows a line per answer with the quantity a kitchen that size
+needs, so a visitor sees *105 sq ft of HDF-HMR*, not one opaque number. Cabinet
+height comes from `cabinet_height_ft` in the calculator settings (7 ft by
+default). Questions and answers are both rows in the database, so a new
+question can be added from the admin without touching code.
 
 > **Every rate ships at ₹0 on purpose.** The studio does not publish a rate
 > card, and inventing numbers would put false prices in front of customers.

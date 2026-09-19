@@ -4,8 +4,10 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   server: {
-    // PORT lets a launcher pick a free port when 5173 is already taken.
-    port: Number(process.env.PORT) || 5173,
+    // 5173 is Vite's default, so every project on this machine wants it —
+    // the FlairMantra site uses it. Tanushree sits on 5174 so the two can run
+    // at once. PORT still wins, which is how the launcher picks a free one.
+    port: Number(process.env.PORT) || 5174,
     open: false,
     proxy: {
       '/api': { target: 'http://localhost:5050', changeOrigin: true },

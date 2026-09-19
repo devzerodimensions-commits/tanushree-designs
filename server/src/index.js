@@ -267,6 +267,31 @@ app.use(
 );
 
 app.use(
+  '/api/calc-groups',
+  crudRouter({
+    table: 'calc_option_groups',
+    fields: ['key', 'question', 'help_text', 'mode', 'sort_order', 'is_active'],
+    required: ['key', 'question'],
+    intFields: ['sort_order'],
+    boolFields: ['is_active'],
+  })
+);
+
+app.use(
+  '/api/calc-options',
+  crudRouter({
+    table: 'calc_options',
+    fields: [
+      'group_key', 'title', 'description', 'pro_tip', 'image_url',
+      'tier', 'rate', 'unit', 'sort_order', 'is_active',
+    ],
+    required: ['group_key', 'title'],
+    intFields: ['tier', 'rate', 'sort_order'],
+    boolFields: ['is_active'],
+  })
+);
+
+app.use(
   '/api/calc-addons',
   crudRouter({
     table: 'calc_addons',

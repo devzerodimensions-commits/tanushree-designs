@@ -42,6 +42,8 @@ const ChimneyTypesPage = lazy(() => resources().then((m) => ({ default: m.Chimne
 const CalcLayoutsPage = lazy(() => resources().then((m) => ({ default: m.CalcLayoutsPage })));
 const CalcPackagesPage = lazy(() => resources().then((m) => ({ default: m.CalcPackagesPage })));
 const CalcAddonsPage = lazy(() => resources().then((m) => ({ default: m.CalcAddonsPage })));
+const CalcGroupsPage = lazy(() => resources().then((m) => ({ default: m.CalcGroupsPage })));
+const CalcOptionsPage = lazy(() => resources().then((m) => ({ default: m.CalcOptionsPage })));
 const Quotes = lazy(() => import('./admin/Quotes.jsx'));
 
 /** Shown while a route chunk is being fetched. */
@@ -107,6 +109,8 @@ export default function App() {
             <Route path="calc-layouts" element={<CalcLayoutsPage />} />
             <Route path="calc-packages" element={<CalcPackagesPage />} />
             <Route path="calc-addons" element={<CalcAddonsPage />} />
+            <Route path="calc-groups" element={<CalcGroupsPage />} />
+            <Route path="calc-options" element={<CalcOptionsPage />} />
             <Route path="quotes" element={<Quotes />} />
             <Route path="pages" element={<PagesEditor />} />
             <Route path="media" element={<Media />} />

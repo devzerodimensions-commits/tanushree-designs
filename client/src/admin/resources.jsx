@@ -480,3 +480,151 @@ export const CalcAddonsPage = () => (
     ]}
   />
 );
+
+/* ================================================ build your own ==== */
+
+const UNIT_OPTIONS = [
+  { value: 'per_ft', label: 'Per running foot of kitchen' },
+  { value: 'per_sqft', label: 'Per square foot of shutter area' },
+  { value: 'flat', label: 'One flat price, whatever the size' },
+];
+
+const UNIT_SHORT = { per_ft: '/ running ft', per_sqft: '/ sq ft', flat: 'flat' };
+
+export const CalcGroupsPage = () => (
+  <ResourcePage
+    resource="calc-groups"
+    title="Build Your Own — Questions"
+    subtitle="The questions asked when a visitor chooses to specify the kitchen themselves"
+    singular="Question"
+    emptyIcon="compass"
+    searchKeys={['question', 'key']}
+    defaults={{ mode: 'single' }}
+    columns={[
+      { key: 'question', label: 'Question', render: cellTruncate('question', 60) },
+      {
+        key: 'mode',
+        label: 'How they answer',
+        width: 150,
+        render: (r) => (
+          <span className="chip chip--gold">
+            {{ single: 'Pick one', multi: 'Pick any', yesno: 'Yes / No' }[r.mode] ?? r.mode}
+          </span>
+        ),
+      },
+      { key: 'key', label: 'Reference', width: 120 },
+      { key: 'sort_order', label: 'Order', width: 80 },
+      { key: 'is_active', label: 'Status', width: 100, render: cellStatus },
+    ]}
+    fields={[
+      { name: 'question', label: 'The question', type: 'text', required: true },
+      {
+        name: 'help_text',
+        label: 'Helper line',
+        type: 'textarea',
+        rows: 2,
+        hint: 'Shown under the question to explain what is being asked',
+      },
+      {
+        name: 'mode',
+        label: 'How they answer',
+        type: 'select',
+        half: true,
+        options: [
+          { value: 'single', label: 'Pick one' },
+          { value: 'multi', label: 'Pick any number' },
+          { value: 'yesno', label: 'Yes / No' },
+        ],
+      },
+      {
+        name: 'key',
+        label: 'Reference',
+        type: 'text',
+        half: true,
+        required: true,
+        hint: 'Short lowercase name used to attach answers. Do not change it once answers exist.',
+      },
+    ]}
+  />
+);
+
+export const CalcOptionsPage = () => (
+  <ResourcePage
+    resource="calc-options"
+    title="Build Your Own — Answers"
+    subtitle="Every answer a visitor can pick, what it costs, and how that cost is measured"
+    singular="Answer"
+    emptyIcon="layers"
+    searchKeys={['title', 'group_key']}
+    defaults={{ unit: 'per_ft', tier: 2 }}
+    columns={[
+      { key: 'title', label: 'Answer', render: cellThumb('image_url', 'title', 'description') },
+      {
+        key: 'group_key',
+        label: 'Question',
+        width: 130,
+        render: (r) => <span className="chip chip--gold">{r.group_key}</span>,
+      },
+      {
+        key: 'rate',
+        label: 'Price',
+        width: 175,
+        render: (r) =>
+          Number(r.rate) > 0 ? (
+            <b style={{ fontWeight: 600 }}>
+              ₹{Number(r.rate).toLocaleString('en-IN')}{' '}
+              <span style={{ fontWeight: 400, color: 'var(--muted)', fontSize: '0.78rem' }}>
+                {UNIT_SHORT[r.unit] ?? r.unit}
+              </span>
+            </b>
+          ) : (
+            <span className="chip chip--new">not priced</span>
+          ),
+      },
+      { key: 'tier', label: 'Shown as', width: 90, render: (r) => '₹'.repeat(r.tier || 1) },
+      { key: 'is_active', label: 'Status', width: 100, render: cellStatus },
+    ]}
+    fields={[
+      { name: 'title', label: 'Answer', type: 'text', required: true, half: true },
+      {
+        name: 'group_key',
+        label: 'Belongs to question',
+        type: 'text',
+        half: true,
+        required: true,
+        hint: 'The reference of the question, e.g. core, finish, appliances',
+      },
+      { name: 'description', label: 'Description', type: 'textarea', rows: 2 },
+      {
+        name: 'pro_tip',
+        label: 'Pro tip',
+        type: 'textarea',
+        rows: 2,
+        hint: 'A line of advice shown under the description',
+      },
+      {
+        name: 'rate',
+        label: 'Price (₹)',
+        type: 'number',
+        half: true,
+        hint: 'Leave at 0 and this answer adds nothing to the estimate',
+      },
+      {
+        name: 'unit',
+        label: 'How the price is measured',
+        type: 'select',
+        half: true,
+        options: UNIT_OPTIONS,
+      },
+      {
+        name: 'tier',
+        label: 'Rupee symbols shown',
+        type: 'select',
+        half: true,
+        options: [1, 2, 3, 4].map((n) => ({ value: n, label: '₹'.repeat(n) })),
+        hint: 'Only a signal of relative cost. Nothing is calculated from it.',
+      },
+      { name: 'image_url', label: 'Image', type: 'image' },
+    ]}
+  />
+);

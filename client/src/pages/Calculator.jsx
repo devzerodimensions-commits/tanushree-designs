@@ -22,6 +22,7 @@ export default function Calculator() {
   const layouts = d.layouts ?? [];
   const packages = d.packages ?? [];
   const addons = d.addons ?? [];
+  const groups = d.groups ?? [];
   const cfg = d.settings ?? {};
   const currency = cfg.currency || '₹';
 
@@ -31,6 +32,10 @@ export default function Calculator() {
   const [segments, setSegments] = useState({});
   const [packageId, setPackageId] = useState(null);
   const [addonIds, setAddonIds] = useState([]);
+  /** "Build your own": chosen option ids, and which sub-question we are on. */
+  const [buildYourOwn, setBuildYourOwn] = useState(false);
+  const [optionIds, setOptionIds] = useState([]);
+  const [groupIndex, setGroupIndex] = useState(0);
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -66,10 +71,61 @@ export default function Calculator() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  /** Next / Back, aware that step 3 may be a run of questions. */
+  const forward = () => {
+    if (step === 2 && buildYourOwn && groupIndex < groups.length - 1) {
+      setDir(1);
+      setGroupIndex((i) => i + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    go(step + 1);
+  };
+
+  const back = () => {
+    if (step === 2 && buildYourOwn && groupIndex > 0) {
+      setDir(-1);
+      setGroupIndex((i) => i - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    if (step === 2 && buildYourOwn) {
+      // back out of the questions to the package choice
+      setBuildYourOwn(false);
+      setOptionIds([]);
+      return;
+    }
+    go(Math.max(0, step - 1));
+  };
+
+  const group = buildYourOwn ? groups[groupIndex] : null;
+
+  /** Which option ids belong to a given question. */
+  const idsIn = (g) => (g?.options ?? []).map((o) => o.id);
+
+  const chosenIn = (g) => optionIds.filter((id) => idsIn(g).includes(id));
+
+  const toggleOption = (g, id) => {
+    setOptionIds((prev) => {
+      const mine = idsIn(g);
+      if (g.mode === 'multi') {
+        return prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
+      }
+      // single and yesno hold at most one answer from their own question
+      const others = prev.filter((x) => !mine.includes(x));
+      return prev.includes(id) ? others : [...others, id];
+    });
+  };
+
+  /** Ready to ask for the estimate: a package, or a built specification. */
+  const hasSpec = Boolean(packageId) || optionIds.length > 0;
+
   const canAdvance =
     (step === 0 && Boolean(layoutId)) ||
     (step === 1 && runningFeet > 0) ||
-    (step === 2 && Boolean(packageId)) ||
+    // A question that must be answered blocks; multi and yes/no may be skipped.
+    (step === 2 &&
+      (buildYourOwn ? group?.mode !== 'single' || chosenIn(group).length > 0 : Boolean(packageId))) ||
     step === 3;
 
   const submit = async (e) => {
@@ -88,6 +144,7 @@ export default function Calculator() {
         ...form,
         layout_id: layoutId,
         package_id: packageId,
+        option_ids: optionIds,
         segments,
         addon_ids: addonIds,
       });
@@ -267,8 +324,90 @@ export default function Calculator() {
                   </>
                 )}
 
+                {/* ------------- 3b. build your own: one question at a time */}
+                {step === 2 && buildYourOwn && group && (
+                  <>
+                    <p className="calc-progress">
+                      Question {groupIndex + 1} of {groups.length}
+                    </p>
+                    <h2 className="calc-q">{group.question}</h2>
+                    {group.help_text && <p className="calc-hint">{group.help_text}</p>}
+
+                    <div className={group.mode === 'yesno' ? 'calc-yesno' : 'calc-options'}>
+                      {group.mode === 'yesno'
+                        ? (group.options ?? []).map((o) => {
+                            const on = chosenIn(group).includes(o.id);
+                            return (
+                              <div className="calc-yesno__row" key={o.id}>
+                                <div>
+                                  <b>{o.title}</b>
+                                  {o.description && <small>{o.description}</small>}
+                                  {o.pro_tip && (
+                                    <span className="calc-tip">
+                                      <Icon.sparkle /> {o.pro_tip}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="calc-yesno__buttons">
+                                  <button
+                                    type="button"
+                                    className={`filter-chip${on ? ' is-active' : ''}`}
+                                    onClick={() => !on && toggleOption(group, o.id)}
+                                  >
+                                    Yes
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className={`filter-chip${!on ? ' is-active' : ''}`}
+                                    onClick={() => on && toggleOption(group, o.id)}
+                                  >
+                                    No
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })
+                        : (group.options ?? []).map((o) => {
+                            const on = chosenIn(group).includes(o.id);
+                            return (
+                              <button
+                                type="button"
+                                key={o.id}
+                                className={`calc-option${on ? ' is-selected' : ''}`}
+                                onClick={() => toggleOption(group, o.id)}
+                                aria-pressed={on}
+                              >
+                                {o.image_url && (
+                                  <span className="calc-option__media">
+                                    <Img src={o.image_url} alt="" ratio="4 / 3" />
+                                  </span>
+                                )}
+                                <span className="calc-option__body">
+                                  <span className="calc-option__head">
+                                    <b>{o.title}</b>
+                                    <em aria-label={`price level ${o.tier}`}>
+                                      {currency.repeat(o.tier || 2)}
+                                    </em>
+                                  </span>
+                                  {o.description && <small>{o.description}</small>}
+                                  {o.pro_tip && (
+                                    <span className="calc-tip">
+                                      <Icon.sparkle /> {o.pro_tip}
+                                    </span>
+                                  )}
+                                </span>
+                                <span className="calc-card__tick" aria-hidden="true">
+                                  <Icon.check />
+                                </span>
+                              </button>
+                            );
+                          })}
+                    </div>
+                  </>
+                )}
+
                 {/* --------------------------- 3. package */}
-                {step === 2 && (
+                {step === 2 && !buildYourOwn && (
                   <>
                     <h2 className="calc-q">Pick your package</h2>
                     <div className="calc-packages">
@@ -305,6 +444,35 @@ export default function Calculator() {
                           </span>
                         </button>
                       ))}
+
+                      {/* The fourth card: specify the kitchen yourself. */}
+                      {groups.length > 0 && (
+                        <button
+                          type="button"
+                          className="calc-pkg calc-pkg--build"
+                          onClick={() => {
+                            setBuildYourOwn(true);
+                            setGroupIndex(0);
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                          }}
+                        >
+                          <span className="calc-pkg__body">
+                            <span className="calc-pkg__head">
+                              <b>Build your own package</b>
+                              <em aria-hidden="true">
+                                <Icon.tools />
+                              </em>
+                            </span>
+                            <small>
+                              Choose the board, the finish, the accessories and the appliances
+                              yourself. {groups.length} quick questions.
+                            </small>
+                            <span className="calc-build-go">
+                              Start building <Icon.arrowRight />
+                            </span>
+                          </span>
+                        </button>
+                      )}
                     </div>
 
                     {addons.length > 0 && (
@@ -360,11 +528,11 @@ export default function Calculator() {
                       </div>
                       <div>
                         <span>Package</span>
-                        <b>{pkg?.title}</b>
+                        <b>{pkg?.title ?? (optionIds.length ? 'Built your own' : '—')}</b>
                       </div>
                       <div>
                         <span>Extras</span>
-                        <b>{addonIds.length || 'None'}</b>
+                        <b>{addonIds.length + optionIds.length || 'None'}</b>
                       </div>
                     </div>
 
@@ -511,6 +679,56 @@ export default function Calculator() {
                       </dl>
                     )}
 
+                    {/* What was specified, how much of it a kitchen this size
+                        needs, and what that comes to. The quantity is shown
+                        even where nothing is priced, because "20 running ft of
+                        BWP ply" is useful on its own. */}
+                    {result.data?.breakdown?.options?.length > 0 && (
+                      <div className="calc-lines">
+                        <h3>What that is made of</h3>
+                        <table>
+                          <thead>
+                            <tr>
+                              <th>Item</th>
+                              <th>How much</th>
+                              <th>Rate</th>
+                              <th>Amount</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {result.data.breakdown.options.map((line) => (
+                              <tr key={line.id}>
+                                <td>
+                                  <b>{line.title}</b>
+                                  <small>{line.question}</small>
+                                </td>
+                                <td>
+                                  {line.unit === 'kitchen'
+                                    ? '1 kitchen'
+                                    : `${line.quantity} ${line.unit}`}
+                                </td>
+                                <td>
+                                  {line.rate > 0
+                                    ? `${rupees(line.rate, currency)} / ${
+                                        line.unit === 'kitchen' ? 'kitchen' : line.unit
+                                      }`
+                                    : '—'}
+                                </td>
+                                <td>{line.amount > 0 ? rupees(line.amount, currency) : '—'}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                        {result.data.breakdown.shutter_area_sqft > 0 && (
+                          <p className="calc-lines__note">
+                            Shutter area is worked out as {result.data.breakdown.running_feet} running
+                            ft × {result.data.breakdown.cabinet_height_ft} ft of cabinet height ={' '}
+                            {result.data.breakdown.shutter_area_sqft} sq ft.
+                          </p>
+                        )}
+                      </div>
+                    )}
+
                     {/* Only meaningful next to a figure — without one it reads
                         as a caveat on an estimate the visitor never saw. */}
                     {result.data?.priced && <p className="calc-disclaimer">{cfg.disclaimer}</p>}
@@ -540,7 +758,7 @@ export default function Calculator() {
               <button
                 type="button"
                 className="btn btn--ghost"
-                onClick={() => go(Math.max(0, step - 1))}
+                onClick={back}
                 disabled={step === 0}
               >
                 <Icon.arrowLeft /> Back
@@ -550,7 +768,7 @@ export default function Calculator() {
                 <button
                   type="button"
                   className="btn"
-                  onClick={() => go(step + 1)}
+                  onClick={forward}
                   disabled={!canAdvance}
                 >
                   Next <Icon.arrowRight />

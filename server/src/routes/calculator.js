@@ -44,6 +44,15 @@ router.get(
         (SELECT json_agg(x) FROM (
           SELECT id, title, slug, description, image_url, price, category
           FROM calc_addons WHERE is_active ORDER BY sort_order, id) x)    AS addons,
+        (SELECT json_agg(x) FROM (
+          SELECT g.key, g.question, g.help_text, g.mode,
+                 (SELECT json_agg(o) FROM (
+                    SELECT id, title, description, pro_tip, image_url, tier, unit
+                    FROM calc_options
+                    WHERE group_key = g.key AND is_active
+                    ORDER BY sort_order, id) o)                           AS options
+          FROM calc_option_groups g
+          WHERE g.is_active ORDER BY g.sort_order, g.id) x)               AS groups,
         (SELECT value FROM site_settings WHERE key = 'calculator')        AS settings
     `);
 
@@ -53,6 +62,10 @@ router.get(
         layouts: r.layouts ?? [],
         packages: r.packages ?? [],
         addons: r.addons ?? [],
+        // The rate is deliberately not sent to the browser. Only the tier —
+        // the row of rupee symbols — is public; the money is applied on the
+        // server so a crafted request cannot price its own kitchen.
+        groups: (r.groups ?? []).map((g) => ({ ...g, options: g.options ?? [] })),
         settings: r.settings ?? {},
       },
     });
@@ -71,9 +84,16 @@ const quoteSchema = z.object({
   city: z.string().optional().nullable(),
   whatsapp_ok: z.boolean().optional(),
   layout_id: z.number().int().positive('Choose a kitchen layout'),
-  package_id: z.number().int().positive('Choose a package'),
+  // Optional, because "Build your own package" replaces the ready-made tiers
+  // rather than adding to them. One or the other must arrive; that is checked
+  // below, where a proper message can be returned.
+  // nullish, not optional: the browser sends package_id: null when the visitor
+  // built their own, and `.optional()` alone accepts undefined but not null.
+  package_id: z.number().int().positive('Choose a package').nullish(),
   segments: z.record(z.string(), z.number()).optional(),
   addon_ids: z.array(z.number().int().positive()).optional(),
+  // "Build your own": the option ids the visitor chose, across every question.
+  option_ids: z.array(z.number().int().positive()).optional(),
   company_website: z.string().optional().nullable(), // honeypot
 });
 
@@ -88,14 +108,23 @@ router.post(
       return res.status(201).json({ ok: true, data: null, message: 'Thank you.' });
     }
 
+    const builtOwn = !body.package_id && (body.option_ids ?? []).length > 0;
+    if (!body.package_id && !builtOwn) {
+      throw ApiError.badRequest('Choose a package, or build your own');
+    }
+
     const [layout, pkg, settingsRow] = await Promise.all([
       pool.query('SELECT * FROM calc_layouts WHERE id = $1 AND is_active', [body.layout_id]),
-      pool.query('SELECT * FROM calc_packages WHERE id = $1 AND is_active', [body.package_id]),
+      body.package_id
+        ? pool.query('SELECT * FROM calc_packages WHERE id = $1 AND is_active', [body.package_id])
+        : Promise.resolve({ rows: [] }),
       pool.query("SELECT value FROM site_settings WHERE key = 'calculator'"),
     ]);
 
     if (!layout.rows[0]) throw ApiError.badRequest('That kitchen layout is no longer available');
-    if (!pkg.rows[0]) throw ApiError.badRequest('That package is no longer available');
+    if (body.package_id && !pkg.rows[0]) {
+      throw ApiError.badRequest('That package is no longer available');
+    }
 
     const settings = settingsRow.rows[0]?.value ?? {};
     const rangePct = Number(settings.range_percent ?? 12);
@@ -123,26 +152,82 @@ router.post(
         ).rows
       : [];
 
-    const rate = Number(pkg.rows[0].rate_per_ft ?? 0);
+    const rate = Number(pkg.rows[0]?.rate_per_ft ?? 0);
     const cabinetry = Math.round(runningFeet * rate);
     const addonTotal = addons.reduce((sum, a) => sum + Number(a.price ?? 0), 0);
-    const subtotal = cabinetry + addonTotal;
+
+    /*
+     * Build-your-own lines.
+     *
+     * Each answer carries a rate and the unit it is charged in, so the
+     * estimate can show how much of the thing a kitchen this size needs
+     * rather than one opaque number:
+     *
+     *   per_ft    running feet of kitchen
+     *   per_sqft  shutter area: running feet x cabinet height
+     *   flat      once, whatever the size
+     *
+     * Rates are read from the database here, never from the request.
+     */
+    const cabinetHeight = Number(settings.cabinet_height_ft ?? 7);
+    const shutterArea = Math.round(runningFeet * cabinetHeight * 10) / 10;
+
+    const optionIds = (body.option_ids ?? []).slice(0, 40);
+    const chosen = optionIds.length
+      ? (
+          await pool.query(
+            `SELECT o.id, o.title, o.rate, o.unit, o.group_key, g.question
+             FROM calc_options o
+             JOIN calc_option_groups g ON g.key = o.group_key
+             WHERE o.id = ANY($1::int[]) AND o.is_active AND g.is_active
+             ORDER BY g.sort_order, o.sort_order`,
+            [optionIds]
+          )
+        ).rows
+      : [];
+
+    const quantityFor = (unit) =>
+      unit === 'per_sqft' ? shutterArea : unit === 'flat' ? 1 : runningFeet;
+
+    const unitLabel = { per_ft: 'running ft', per_sqft: 'sq ft', flat: 'kitchen' };
+
+    const optionLines = chosen.map((o) => {
+      const qty = quantityFor(o.unit);
+      const optRate = Number(o.rate ?? 0);
+      return {
+        id: o.id,
+        question: o.question,
+        title: o.title,
+        quantity: qty,
+        unit: unitLabel[o.unit] ?? o.unit,
+        rate: optRate,
+        amount: Math.round(qty * optRate),
+      };
+    });
+
+    const optionTotal = optionLines.reduce((sum, l) => sum + l.amount, 0);
+    const subtotal = cabinetry + addonTotal + optionTotal;
 
     // A rate of 0 means the studio has not published a price for that tier.
     // Return the answers without a number rather than showing "₹0".
-    const priced = rate > 0;
+    // Priced when anything in the estimate carries a real figure.
+    const priced = rate > 0 || optionTotal > 0 || addonTotal > 0;
     const low = priced ? Math.round((subtotal * (100 - rangePct)) / 100) : 0;
     const high = priced ? Math.round((subtotal * (100 + rangePct)) / 100) : 0;
 
     const breakdown = {
       layout: layout.rows[0].title,
-      package: pkg.rows[0].title,
+      package: pkg.rows[0]?.title ?? 'Built to your own specification',
       running_feet: runningFeet,
       rate_per_ft: rate,
       cabinetry,
       addons: addons.map((a) => ({ title: a.title, price: Number(a.price) })),
       addon_total: addonTotal,
       measured,
+      cabinet_height_ft: cabinetHeight,
+      shutter_area_sqft: shutterArea,
+      options: optionLines,
+      option_total: optionTotal,
       priced,
     };
 
@@ -159,9 +244,9 @@ router.post(
         body.city?.trim() || null,
         Boolean(body.whatsapp_ok),
         body.layout_id,
-        body.package_id,
+        body.package_id ?? null,
         runningFeet,
-        JSON.stringify(addons.map((a) => a.id)),
+        JSON.stringify([...addons.map((a) => a.id), ...chosen.map((o) => o.id)]),
         low,
         high,
         JSON.stringify(breakdown),

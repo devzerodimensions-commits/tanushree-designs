@@ -303,6 +303,41 @@ CREATE TABLE IF NOT EXISTS calc_addons (
 );
 
 -- Every estimate a visitor completes, with the answers that produced it.
+-- "Build your own package": the questions asked after a visitor chooses to
+-- specify the kitchen themselves, and the answers available to each.
+--
+-- Both are data rather than code, so the studio can add a whole new question
+-- (say "Which handles?") without anyone touching the app.
+CREATE TABLE IF NOT EXISTS calc_option_groups (
+  id          SERIAL PRIMARY KEY,
+  key         VARCHAR(40)  NOT NULL UNIQUE,
+  question    VARCHAR(200) NOT NULL,
+  help_text   TEXT,
+  -- single: pick one   multi: pick any   yesno: one yes/no with a price
+  mode        VARCHAR(10)  NOT NULL DEFAULT 'single',
+  sort_order  INTEGER      NOT NULL DEFAULT 0,
+  is_active   BOOLEAN      NOT NULL DEFAULT TRUE
+);
+
+CREATE TABLE IF NOT EXISTS calc_options (
+  id          SERIAL PRIMARY KEY,
+  group_key   VARCHAR(40)  NOT NULL REFERENCES calc_option_groups(key) ON DELETE CASCADE,
+  title       VARCHAR(160) NOT NULL,
+  description TEXT,
+  pro_tip     TEXT,
+  image_url   TEXT,
+  -- How many rupee symbols to show. Independent of `rate`, so the studio can
+  -- signal "this is the dearer one" before it has published any real figures.
+  tier        SMALLINT     NOT NULL DEFAULT 2,
+  rate        INTEGER      NOT NULL DEFAULT 0,
+  -- per_ft: rate x running feet   per_sqft: rate x shutter area   flat: rate once
+  unit        VARCHAR(10)  NOT NULL DEFAULT 'per_ft',
+  sort_order  INTEGER      NOT NULL DEFAULT 0,
+  is_active   BOOLEAN      NOT NULL DEFAULT TRUE
+);
+
+CREATE INDEX IF NOT EXISTS idx_calc_options_group ON calc_options(group_key);
+
 CREATE TABLE IF NOT EXISTS calc_quotes (
   id           SERIAL PRIMARY KEY,
   name         VARCHAR(140) NOT NULL,

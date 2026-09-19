@@ -34,6 +34,8 @@ const NAV = [
       { to: '/admin/calc-packages', label: 'Packages & Rates', icon: 'layers' },
       { to: '/admin/calc-layouts', label: 'Layouts', icon: 'layout' },
       { to: '/admin/calc-addons', label: 'Add-ons', icon: 'appliance' },
+      { to: '/admin/calc-groups', label: 'Build Your Own — Questions', icon: 'compass' },
+      { to: '/admin/calc-options', label: 'Build Your Own — Answers', icon: 'layers' },
       { to: '/admin/quotes', label: 'Estimates', icon: 'chart', badge: 'quotes' },
     ],
   },
