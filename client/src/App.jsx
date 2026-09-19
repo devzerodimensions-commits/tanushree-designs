@@ -90,6 +90,9 @@ export default function App() {
           <Route path="/admin/login" element={<Login />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<Dashboard />} />
+            {/* Taken out of the sidebar at the studio's request. The route
+                stays so the Our Work gallery is not frozen for good — reach it
+                at /admin/projects if a project ever needs changing. */}
             <Route path="projects" element={<Projects />} />
             <Route path="services" element={<ServicesPage />} />
             <Route path="kitchen-layouts" element={<LayoutsPage />} />

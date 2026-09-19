@@ -132,9 +132,14 @@ back-to-top buttons, and scroll-reveal animation throughout that respects
 Everything the website renders is editable — nothing is hard-coded in the React
 components.
 
-**Content** — Projects (with gallery + featured toggle), Services, Kitchen
-Layouts, Chimney Types, Materials, Categories, Testimonials, Team, Process
-Steps, Stats, FAQs.
+**Content** — Services, Kitchen Layouts, Chimney Types, Materials, Categories,
+Testimonials, Team, Process Steps, Stats, FAQs.
+
+Projects were taken out of the sidebar at the studio's request. The screen is
+still there at **`/admin/projects`** if a project on Our Work ever needs
+changing — the route was kept deliberately so the gallery is not frozen for
+good. It feeds Our Work, the featured row on the home page, and the recent
+kitchens on the Modular Kitchen and Elica pages.
 
 An FAQ's **category** decides where it appears: `chimney` entries show on the
 Elica page only, and are kept off the contact page. Everything else is shared.

@@ -12,11 +12,16 @@ const SOCIALS = [
   ['linkedin', Icon.linkedin, 'LinkedIn'],
 ];
 
+/*
+ * Every link here goes to a page that is about the thing it names.
+ *
+ * Three used to point somewhere else: "Wardrobes & Storage" and "Kitchen
+ * Appliances" jumped to anchors part-way down the kitchen page, and "Full
+ * Home Interiors" went to About Us. A reader who clicked them did not arrive
+ * anywhere that matched what they had clicked.
+ */
 const SERVICE_LINKS = [
   ['Modular Kitchens', '/modular-kitchen'],
-  ['Wardrobes & Storage', '/modular-kitchen#materials'],
-  ['Kitchen Appliances', '/modular-kitchen#appliances'],
-  ['Full Home Interiors', '/about-us'],
   ['Elica Chimney', '/elica-chimney'],
   ['Kitchen Price Calculator', '/kitchen-price-calculator'],
   ['Our Work', '/our-work'],

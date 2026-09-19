@@ -15,7 +15,6 @@ const NAV = [
   {
     label: 'Content',
     items: [
-      { to: '/admin/projects', label: 'Projects', icon: 'grid' },
       { to: '/admin/services', label: 'Services', icon: 'kitchen' },
       { to: '/admin/kitchen-layouts', label: 'Kitchen Layouts', icon: 'layout' },
       { to: '/admin/chimney-types', label: 'Chimney Types', icon: 'appliance' },
@@ -40,7 +39,7 @@ const NAV = [
   {
     label: 'Site',
     items: [
-      { to: '/admin/pages', label: 'Page Content', icon: 'edit' },
+      { to: '/admin/pages', label: 'Pages', icon: 'edit' },
       { to: '/admin/media', label: 'Media Library', icon: 'image' },
       { to: '/admin/enquiries', label: 'Enquiries', icon: 'inbox', badge: 'enquiries' },
       { to: '/admin/settings', label: 'Settings', icon: 'settings' },

@@ -6,7 +6,6 @@ import { AdminHeader } from './AdminLayout.jsx';
 import { EmptyState, TableSkeleton } from './ui.jsx';
 
 const KPIS = [
-  { key: 'projects_live', label: 'Live projects', icon: 'grid', to: '/admin/projects' },
   { key: 'enquiries_new', label: 'New enquiries', icon: 'inbox', to: '/admin/enquiries' },
   { key: 'quotes_new', label: 'New estimates', icon: 'chart', to: '/admin/quotes' },
   { key: 'services', label: 'Active services', icon: 'kitchen', to: '/admin/services' },
@@ -33,8 +32,8 @@ export default function Dashboard() {
         subtitle="A quick read on your website and incoming enquiries"
         onMenu={() => setOpen(true)}
       >
-        <Link className="btn btn--sm" to="/admin/projects">
-          <Icon.plus /> Add project
+        <Link className="btn btn--sm" to="/admin/enquiries">
+          <Icon.inbox /> Enquiries
         </Link>
       </AdminHeader>
 
@@ -158,9 +157,6 @@ export default function Dashboard() {
             The things you will reach for most often.
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-            <Link className="btn btn--ghost btn--sm" to="/admin/projects">
-              <Icon.grid /> Manage projects
-            </Link>
             <Link className="btn btn--ghost btn--sm" to="/admin/pages">
               <Icon.edit /> Edit page text
             </Link>
