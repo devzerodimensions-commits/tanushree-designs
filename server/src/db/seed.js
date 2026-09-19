@@ -310,6 +310,9 @@ const PAGES = [
       work_title: 'Spaces We’ve Brought to Life',
       work_text:
         'Every project reflects our commitment to thoughtful design, skilled craftsmanship, and interiors that feel both practical and inspiring. Explore some of the homes and spaces we’ve had the privilege to design.',
+      process_eyebrow: 'How We Work',
+      process_title: 'From first sketch to final handle',
+      process_text: 'No surprises — here is exactly what happens, and when.',
       story_eyebrow: 'Our Story',
       story_title: 'Spaces that feel personal, practical, and beautifully designed.',
       story_text:
@@ -865,6 +868,37 @@ export { run as seed };
  *
  * @returns {Promise<number>} how many rows were given a photo
  */
+/**
+ * Add section keys that a page did not have when it was first seeded.
+ *
+ * The Page Content editor lists whatever keys a page already holds, so a new
+ * heading is not editable until its key exists in the row. This merges in the
+ * missing ones and leaves every existing value alone.
+ *
+ * @returns {Promise<number>} how many pages gained a key
+ */
+export async function seedMissingSectionKeys() {
+  let touched = 0;
+  for (const page of PAGES) {
+    const { rows } = await pool.query('SELECT sections FROM pages WHERE slug = $1', [page.slug]);
+    if (!rows[0]) continue;
+
+    const current = rows[0].sections ?? {};
+    const missing = {};
+    for (const [k, v] of Object.entries(page.sections ?? {})) {
+      if (!(k in current)) missing[k] = v;
+    }
+    if (!Object.keys(missing).length) continue;
+
+    await pool.query(
+      `UPDATE pages SET sections = $2::jsonb || sections, updated_at = NOW() WHERE slug = $1`,
+      [page.slug, JSON.stringify(missing)]
+    );
+    touched += 1;
+  }
+  return touched;
+}
+
 export async function seedTeamPhotos() {
   let filled = 0;
   for (const m of TEAM) {

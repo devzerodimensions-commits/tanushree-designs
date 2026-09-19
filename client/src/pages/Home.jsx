@@ -259,11 +259,17 @@ export default function Home() {
       {/* ---------------------------------------------------- process */}
       <section className="section section--cream">
         <div className="shell">
+          {/* No step count in the copy: there are three steps today and the
+              studio can add a fourth from the admin without the heading
+              going out of date. */}
           <SectionHead
             center
-            eyebrow="How We Work"
-            title="Five steps, no surprises"
-            text="From the first sketch to the final handle, here is exactly what happens and when."
+            eyebrow={s.process_eyebrow || 'How We Work'}
+            title={s.process_title || 'From first sketch to final handle'}
+            text={
+              s.process_text ||
+              'No surprises — here is exactly what happens, and when.'
+            }
           />
           <ProcessGrid steps={d.process ?? []} />
         </div>

@@ -98,7 +98,7 @@ export default function About() {
             center
             eyebrow="How We Work"
             title="From first sketch to final handle"
-            text="A process we have refined over two decades and more than eight hundred homes."
+            text="The same three stages on every project, whatever its size."
           />
           <ProcessGrid steps={d.process ?? []} />
         </div>

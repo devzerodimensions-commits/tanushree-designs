@@ -28,6 +28,7 @@ import {
   seed,
   seedCalculator,
   seedElicaPage,
+  seedMissingSectionKeys,
   seedTeamPhotos,
 } from './db/seed.js';
 
@@ -356,6 +357,9 @@ async function setupDatabase() {
       }
       const photos = await seedTeamPhotos();
       if (photos) console.log(`[startup] ${photos} team photographs attached`);
+
+      const pages = await seedMissingSectionKeys();
+      if (pages) console.log(`[startup] new section keys added to ${pages} page(s)`);
     }
     console.log('[startup] database ready');
   } catch (err) {

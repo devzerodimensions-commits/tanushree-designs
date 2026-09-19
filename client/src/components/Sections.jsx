@@ -104,18 +104,46 @@ export function StatsBand({ stats = [] }) {
 /* ------------------------------------------------------------- process */
 export function ProcessGrid({ steps = [] }) {
   if (!steps.length) return null;
+
+  // The rail only makes sense while the steps sit in one row, so the column
+  // count is fixed rather than left to auto-fit — otherwise a wrapped card
+  // leaves a rail pointing at nothing. Past four steps the row would be too
+  // cramped to line up anyway, so the rail is dropped.
+  const columns = Math.min(steps.length, 4);
+  const railed = steps.length <= 4;
+
   return (
-    <RevealGroup className="process-grid">
-      {steps.map((s) => {
+    <RevealGroup
+      className={`process-grid${railed ? ' process-grid--railed' : ''}`}
+      style={{ '--process-cols': columns }}
+    >
+      {steps.map((s, i) => {
         const Glyph = Icon[s.icon] || Icon.compass;
         return (
-          <RevealItem className="process-step" key={s.id ?? s.step_no}>
-            <div className="process-step__no">{String(s.step_no).padStart(2, '0')}</div>
-            <div className="process-step__icon">
-              <Glyph />
-            </div>
-            <h3>{s.title}</h3>
-            <p>{s.description}</p>
+          // The card is inside the animated wrapper rather than being it.
+          // RevealItem carries an inline transform from the entrance
+          // animation, and an inline style beats a stylesheet rule — so a
+          // :hover lift written in CSS would simply never apply.
+          <RevealItem className="process-cell" key={s.id ?? s.step_no}>
+            <article className="process-step">
+              {/* The rail joins this marker to the next, so the last step
+                  does not trail off into nothing. */}
+              {railed && i < steps.length - 1 && (
+                <span className="process-step__rail" aria-hidden="true" />
+              )}
+
+              <div className="process-step__head">
+                <span className="process-step__marker">
+                  <Glyph />
+                </span>
+                <span className="process-step__no" aria-hidden="true">
+                  {String(s.step_no).padStart(2, '0')}
+                </span>
+              </div>
+
+              <h3>{s.title}</h3>
+              <p>{s.description}</p>
+            </article>
           </RevealItem>
         );
       })}
