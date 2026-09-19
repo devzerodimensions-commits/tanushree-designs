@@ -328,6 +328,27 @@
 }
 .hero__dot.is-active { background: var(--accent-on-dark); transform: scale(1.5); }
 
+/* The active dot carries a ring that fills over one slide's life, so holding
+   the slide reads as deliberate rather than as the carousel having stalled. */
+.hero__dot { position: relative; display: grid; place-items: center; }
+.hero__dot-fill {
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 1.5px solid var(--accent-on-dark);
+  opacity: 0.85;
+  clip-path: inset(100% 0 0 0);
+  animation: heroDotFill linear forwards;
+}
+.hero__dots.is-paused .hero__dot-fill { animation-play-state: paused; }
+@keyframes heroDotFill {
+  from { clip-path: inset(100% 0 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero__dot-fill { display: none; }
+}
+
 @media (max-width: 720px) {
   .hero__dots { flex-direction: row; right: auto; left: var(--gutter); bottom: 24px; }
 }

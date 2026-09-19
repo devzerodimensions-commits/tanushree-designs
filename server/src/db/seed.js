@@ -37,6 +37,8 @@ const P = {
   interiors: '/images/interior-design.webp',
 };
 
+const TEAM_DIR = '/images/team';
+
 // ===================================================================
 //  Content
 // ===================================================================
@@ -144,14 +146,20 @@ const TESTIMONIALS = [
 ];
 
 /** The team as listed on the About page. */
+/**
+ * The real team, in the order and with the photographs used on
+ * tanushreedesigns.in/about-us. Each photo was matched to its person by
+ * position on that page, not by filename — the originals are numbered 1-7 in
+ * an order that does not match the grid.
+ */
 const TEAM = [
-  { name: 'Chandan Tikyani', role: 'Founder & Director' },
-  { name: 'Vimla Tikyani', role: 'Co-Founder & Principal Interior Designer' },
-  { name: 'Bhautik Prajapati', role: 'Kitchen Designer' },
-  { name: 'Kamani Prajapati', role: 'Kitchen Designer' },
-  { name: 'Satyam Prajapati', role: 'Operation Head' },
-  { name: 'Kruti Dad', role: 'Human Resource' },
-  { name: 'Madan', role: 'Site Supervisor' },
+  { name: 'Chandan Tikyani', role: 'Founder & Director', photo: `${TEAM_DIR}/chandan-tikyani.webp` },
+  { name: 'Vimla Tikyani', role: 'Co-Founder & Principal Interior Designer', photo: `${TEAM_DIR}/vimla-tikyani.webp` },
+  { name: 'Bhautik Prajapati', role: 'Kitchen Designer', photo: `${TEAM_DIR}/bhautik-prajapati.webp` },
+  { name: 'Kamani Prajapati', role: 'Kitchen Designer', photo: `${TEAM_DIR}/kamani-prajapati.webp` },
+  { name: 'Kruti Dad', role: 'Human Resource', photo: `${TEAM_DIR}/kruti-dad.webp` },
+  { name: 'Satyam Prajapati', role: 'Operation Head', photo: `${TEAM_DIR}/satyam-prajapati.webp` },
+  { name: 'Madan', role: 'Site Supervisor', photo: `${TEAM_DIR}/madan.webp` },
 ];
 
 /** "Your dream space in 3 steps!" */
@@ -757,7 +765,7 @@ async function run() {
   for (const [i, m] of TEAM.entries()) {
     await pool.query(
       'INSERT INTO team_members (name, role, bio, photo_url, sort_order) VALUES ($1,$2,$3,$4,$5)',
-      [m.name, m.role, null, null, i]
+      [m.name, m.role, null, m.photo ?? null, i]
     );
   }
   console.log(`  team members    -> ${TEAM.length}`);
@@ -849,6 +857,28 @@ export { run as seed };
  *
  * @returns {Promise<boolean>} whether anything was written
  */
+/**
+ * Attach the team photographs on a database seeded before they existed.
+ *
+ * Only fills a row whose photo_url is still empty and whose name matches, so
+ * a photo the studio has since uploaded through the admin is left alone.
+ *
+ * @returns {Promise<number>} how many rows were given a photo
+ */
+export async function seedTeamPhotos() {
+  let filled = 0;
+  for (const m of TEAM) {
+    if (!m.photo) continue;
+    const { rowCount } = await pool.query(
+      `UPDATE team_members SET photo_url = $2
+       WHERE name = $1 AND (photo_url IS NULL OR photo_url = '')`,
+      [m.name, m.photo]
+    );
+    filled += rowCount;
+  }
+  return filled;
+}
+
 export async function seedElicaPage() {
   let wrote = false;
 

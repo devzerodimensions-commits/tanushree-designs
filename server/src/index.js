@@ -23,7 +23,13 @@ import bootstrapRoutes from './routes/bootstrap.js';
 import calculatorRoutes from './routes/calculator.js';
 import { crudRouter } from './routes/crud.js';
 import { migrate } from './db/migrate.js';
-import { isEmptyDatabase, seed, seedCalculator, seedElicaPage } from './db/seed.js';
+import {
+  isEmptyDatabase,
+  seed,
+  seedCalculator,
+  seedElicaPage,
+  seedTeamPhotos,
+} from './db/seed.js';
 
 dotenv.config();
 
@@ -348,6 +354,8 @@ async function setupDatabase() {
       if (await seedElicaPage()) {
         console.log('[startup] Elica chimney page content added');
       }
+      const photos = await seedTeamPhotos();
+      if (photos) console.log(`[startup] ${photos} team photographs attached`);
     }
     console.log('[startup] database ready');
   } catch (err) {

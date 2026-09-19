@@ -14,6 +14,23 @@ export class ApiError extends Error {
   }
 }
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/**
+ * How many times a read is retried before it is treated as failed.
+ *
+ * The API sleeps when the free hosting plan has had no traffic, and the first
+ * request that wakes it can take the best part of a minute or come back as a
+ * 502 from the proxy. Without this the first visitor after a quiet spell got
+ * a page with empty sections and no way to recover but a manual reload —
+ * which is exactly what it looked like from the outside: "sometimes a section
+ * does not show until I refresh".
+ *
+ * Only reads are retried. Replaying a POST could submit an enquiry twice.
+ */
+const READ_RETRIES = 4;
+const RETRY_STATUS = new Set([408, 425, 429, 500, 502, 503, 504]);
+
 async function request(path, { method = 'GET', body, auth = false, isForm = false } = {}) {
   const headers = {};
   if (!isForm) headers['Content-Type'] = 'application/json';
@@ -22,15 +39,32 @@ async function request(path, { method = 'GET', body, auth = false, isForm = fals
     if (token) headers.Authorization = `Bearer ${token}`;
   }
 
+  const retries = method === 'GET' ? READ_RETRIES : 0;
+  let attempt = 0;
   let res;
-  try {
-    res = await fetch(`${BASE}${path}`, {
-      method,
-      headers,
-      body: isForm ? body : body !== undefined ? JSON.stringify(body) : undefined,
-    });
-  } catch {
-    throw new ApiError('Cannot reach the server. Is the API running on port 5000?', 0);
+
+  for (;;) {
+    try {
+      res = await fetch(`${BASE}${path}`, {
+        method,
+        headers,
+        body: isForm ? body : body !== undefined ? JSON.stringify(body) : undefined,
+      });
+    } catch {
+      if (attempt < retries) {
+        await sleep(600 * 2 ** attempt);
+        attempt += 1;
+        continue;
+      }
+      throw new ApiError('Cannot reach the server. Please check your connection.', 0);
+    }
+
+    if (RETRY_STATUS.has(res.status) && attempt < retries) {
+      await sleep(600 * 2 ** attempt);
+      attempt += 1;
+      continue;
+    }
+    break;
   }
 
   if (res.status === 204) return null;

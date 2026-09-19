@@ -14,15 +14,28 @@ import Testimonials from '../components/Testimonials.jsx';
 import ContactForm from '../components/ContactForm.jsx';
 
 /* ------------------------------------------------------------- hero */
+const SLIDE_MS = 6500;
+
 function Hero({ slides, fallback }) {
   const list = slides?.length ? slides : [fallback];
   const [i, setI] = useState(0);
+  const [paused, setPaused] = useState(false);
 
   useEffect(() => {
-    if (list.length < 2) return undefined;
-    const id = setTimeout(() => setI((v) => (v + 1) % list.length), 6500);
+    if (list.length < 2 || paused) return undefined;
+    const id = setTimeout(() => setI((v) => (v + 1) % list.length), SLIDE_MS);
     return () => clearTimeout(id);
-  }, [i, list.length]);
+  }, [i, list.length, paused]);
+
+  // Reaching for a button and having the slide change underneath is the most
+  // annoying thing a hero carousel does. Hovering or tabbing to the buttons
+  // or the dots holds the current slide; leaving them starts the clock again.
+  const hold = {
+    onMouseEnter: () => setPaused(true),
+    onMouseLeave: () => setPaused(false),
+    onFocus: () => setPaused(true),
+    onBlur: () => setPaused(false),
+  };
 
   const slide = list[i] ?? fallback;
 
@@ -56,7 +69,7 @@ function Hero({ slides, fallback }) {
             {slide.eyebrow && <span className="eyebrow hero__eyebrow">{slide.eyebrow}</span>}
             <h1>{slide.title}</h1>
             <p className="hero__text">{slide.text}</p>
-            <div className="hero__actions">
+            <div className="hero__actions" {...hold}>
               <Link className="btn" to="/our-work">
                 Explore Our Projects <Icon.arrowRight />
               </Link>
@@ -69,14 +82,25 @@ function Hero({ slides, fallback }) {
       </div>
 
       {list.length > 1 && (
-        <div className="hero__dots">
+        <div className={`hero__dots${paused ? ' is-paused' : ''}`} {...hold}>
           {list.map((s, idx) => (
             <button
               key={s.image ?? idx}
               className={`hero__dot${idx === i ? ' is-active' : ''}`}
               onClick={() => setI(idx)}
-              aria-label={`Slide ${idx + 1}`}
-            />
+              aria-label={`Slide ${idx + 1} of ${list.length}`}
+              aria-current={idx === i}
+            >
+              {/* Fills over one slide's life, so a held slide is visibly held
+                  rather than just slow. Restarts with each slide via the key. */}
+              {idx === i && (
+                <span
+                  className="hero__dot-fill"
+                  key={i}
+                  style={{ animationDuration: `${SLIDE_MS}ms` }}
+                />
+              )}
+            </button>
           ))}
         </div>
       )}
