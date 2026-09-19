@@ -209,9 +209,6 @@ export default function Home() {
                     </span>
                     <h3>{svc.title}</h3>
                     <p>{svc.short_desc}</p>
-                    <Link className="link-arrow service-card__link" to="/modular-kitchen">
-                      Learn more <Icon.arrowRight />
-                    </Link>
                   </div>
                 </RevealItem>
               );
