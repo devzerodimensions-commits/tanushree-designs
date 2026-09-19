@@ -15,8 +15,17 @@ const asObject = (rows) =>
 router.get(
   '/',
   asyncHandler(async (_req, res) => {
-    const { rows } = await pool.query('SELECT key, value FROM site_settings');
-    res.json({ data: asObject(rows) });
+    // The menu links ride along with the settings the site already fetches on
+    // every visit, rather than costing a second request of their own.
+    const [settings, menu] = await Promise.all([
+      pool.query('SELECT key, value FROM site_settings'),
+      pool.query(
+        `SELECT slug, title FROM pages
+         WHERE is_custom AND is_published AND show_in_nav
+         ORDER BY nav_order ASC, title ASC`
+      ),
+    ]);
+    res.json({ data: { ...asObject(settings.rows), custom_pages: menu.rows } });
   })
 );
 

@@ -118,6 +118,7 @@ Change this immediately under **Settings → Account**.
 | `/elica-chimney`   | Elica chimneys: the three mounting types, what decides the right one, recent kitchens, chimney FAQs |
 | `/our-work`        | Filterable + searchable project gallery. Each card is the photograph and the project name only — there is no per-project page |
 | `/contact-us`      | Contact cards, validated form, Google Map, FAQs                              |
+| `/<anything-else>` | A page built in the admin out of blocks, if one is published at that address |
 | `/kitchen-price-calculator` | Four-step estimate wizard: layout → wall measurements → package + add-ons → contact details and the figure |
 
 Plus a styled 404, sticky header with mobile drawer, floating call/WhatsApp/
@@ -152,6 +153,19 @@ answers the visitor gave and the figure they were shown).
 > Until you set them in **Admin → Calculator → Packages & Rates**, the
 > calculator still collects the enquiry but shows *"we will call you with a
 > figure"* instead of a price. Set the rates before you promote the page.
+
+**Build a page** — Admin → Pages → *New page*. Give it a name, and it is
+created switched off at an address made from that name. Stack up blocks —
+section heading, paragraphs, picture, picture beside writing, tick list, cards,
+call to action — reorder them with the arrows, then switch on *Live on the
+website* and, if you want it in the menus, *Show in the menu*. Pages you build
+can be deleted; the built-in ones can only be edited, because a route in the
+code points at each of them.
+
+Every block is drawn with the same components the built-in pages use, so a page
+assembled in the admin cannot end up looking like a different website. The
+header measures itself, so adding pages to the menu moves the whole menu into
+the drawer when the bar runs out of room rather than breaking the layout.
 
 **Site** — Page Content (hero copy, section headings and SEO per page), Media
 Library (drag-and-drop upload, folders, copy URL), Enquiries (status pipeline

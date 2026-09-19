@@ -15,23 +15,40 @@
 
 /* ------------------------------------------------------------ login */
 .login-screen {
-  min-height: 100vh;
+  /* dvh so the mobile browser chrome cannot make this taller than the screen */
+  min-height: 100dvh;
   display: grid;
   grid-template-columns: 1fr 1fr;
   background: var(--ink);
 }
 
-.login-art { position: relative; overflow: hidden; }
-.login-art img { width: 100%; height: 100%; object-fit: cover; }
+/* Photograph, veil and copy are stacked in one cell rather than absolutely
+   positioned, so the copy can sit in the middle of the panel instead of being
+   pinned to the bottom edge, where a short window cut it off. */
+.login-art {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  align-items: center;
+}
+/* The photograph and its veil are taken out of flow. Left in it, the image's
+   own proportions decided how tall the row was — at this column width that
+   was taller than the window, which pushed the copy off the bottom and put a
+   scrollbar on a screen that should never need one. */
+.login-art img,
 .login-art::after {
-  content: '';
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.login-art img { object-fit: cover; }
+.login-art::after {
+  content: '';
   background: linear-gradient(200deg, rgba(74, 0, 0, 0.82), rgba(29, 30, 32, 0.9));
 }
 .login-art__copy {
-  position: absolute;
-  inset: auto 0 0 0;
+  position: relative;
   padding: clamp(32px, 5vw, 64px);
   color: #fff;
   z-index: 2;
@@ -44,6 +61,10 @@
   place-items: center;
   padding: clamp(28px, 5vw, 60px);
   background: var(--white);
+  /* A grid item will not shrink past its content by default, which is what
+     let the whole screen grow taller than the viewport and put the artwork
+     out of reach. */
+  min-height: 0;
 }
 .login-form { width: min(400px, 100%); }
 .login-form h1 { font-size: clamp(1.9rem, 3vw, 2.4rem); margin-bottom: 10px; }
@@ -748,4 +769,120 @@
   .admin-top p { display: none; }
   .admin-top h1 { font-size: 1.14rem; }
   .admin-top__actions { margin-left: auto; }
+}
+
+/* ===================================================== page builder ====
+   The screen a non-technical person spends most of their time in, so it is
+   built to be scanned: one row per block, plain names, and the controls that
+   change order or remove something kept away from the one that opens it.
+   ===================================================================== */
+.a-card--accent { border-color: var(--rose-light); background: linear-gradient(180deg, #fffaf9, var(--white)); }
+
+.tab-flag {
+  margin-left: 7px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--cream-deep);
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-style: normal;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+.page-live { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.page-live h3 { font-family: var(--font-sans); font-size: 1rem; font-weight: 500; margin-bottom: 4px; }
+.page-live p { font-size: 0.85rem; color: var(--muted); }
+.page-live code { font-family: ui-monospace, monospace; color: var(--maroon); }
+
+.block-editor { display: grid; gap: 10px; }
+
+.block-empty {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 40px 24px;
+  text-align: center;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  color: var(--muted);
+}
+.block-empty svg { width: 26px; height: 26px; color: var(--grey-light); margin-bottom: 6px; }
+.block-empty b { color: var(--ink); font-weight: 500; }
+.block-empty p { font-size: 0.85rem; max-width: 46ch; }
+
+.block-row { border: 1px solid var(--line); border-radius: var(--radius); background: var(--white); overflow: hidden; }
+.block-row.is-open { border-color: var(--rose-light); box-shadow: var(--shadow-sm); }
+
+.block-row__bar { display: flex; align-items: center; gap: 10px; padding: 10px 12px 10px 10px; }
+
+.block-row__handle {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+}
+.block-row__handle:hover { background: var(--cream); }
+
+.block-row__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  background: var(--cream);
+  color: var(--maroon);
+}
+.block-row__icon svg { width: 18px; height: 18px; }
+
+.block-row__name { min-width: 0; display: grid; }
+.block-row__name b { font-weight: 500; font-size: 0.92rem; }
+.block-row__name small {
+  font-size: 0.78rem;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.block-row__chev { width: 16px; height: 16px; color: var(--muted); transition: transform var(--t-fast); flex: none; }
+.block-row.is-open .block-row__chev { transform: rotate(180deg); }
+
+.block-row__body { padding: 4px 16px 20px; border-top: 1px solid var(--line); }
+
+.block-add { width: 100%; justify-content: center; }
+
+.block-picker { border: 1px solid var(--rose-light); border-radius: var(--radius); padding: 16px; background: #fffaf9; }
+.block-picker__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.block-picker__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+
+.block-choice {
+  display: grid;
+  gap: 4px;
+  padding: 14px;
+  text-align: left;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--t-fast), transform var(--t-fast);
+}
+.block-choice:hover { border-color: var(--maroon); transform: translateY(-2px); }
+.block-choice__icon { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 8px; background: var(--cream); color: var(--maroon); margin-bottom: 4px; }
+.block-choice__icon svg { width: 16px; height: 16px; }
+.block-choice b { font-weight: 500; font-size: 0.88rem; }
+.block-choice small { font-size: 0.76rem; color: var(--muted); line-height: 1.5; }
+
+.block-cards { display: grid; gap: 12px; margin-top: 14px; }
+.block-card { border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 14px; background: var(--sand); }
+.block-card__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.block-card__head b { font-size: 0.82rem; font-weight: 500; color: var(--muted); }
+
+@media (max-width: 560px) {
+  .block-row__bar { flex-wrap: wrap; }
+  .block-picker__grid { grid-template-columns: 1fr; }
 }

@@ -253,6 +253,15 @@ CREATE TABLE IF NOT EXISTS chimney_types (
   is_active   BOOLEAN      NOT NULL DEFAULT TRUE
 );
 
+-- Pages the studio builds itself, out of blocks, without anyone touching code.
+-- The built-in pages keep their hand-built layouts and ignore `blocks`;
+-- is_custom = TRUE marks the ones rendered entirely from it.
+ALTER TABLE pages ADD COLUMN IF NOT EXISTS blocks       JSONB   NOT NULL DEFAULT '[]'::jsonb;
+ALTER TABLE pages ADD COLUMN IF NOT EXISTS is_custom    BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE pages ADD COLUMN IF NOT EXISTS is_published BOOLEAN NOT NULL DEFAULT TRUE;
+ALTER TABLE pages ADD COLUMN IF NOT EXISTS show_in_nav  BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE pages ADD COLUMN IF NOT EXISTS nav_order    INTEGER NOT NULL DEFAULT 0;
+
 CREATE TABLE IF NOT EXISTS calc_layouts (
   id          SERIAL PRIMARY KEY,
   title       VARCHAR(120) NOT NULL,

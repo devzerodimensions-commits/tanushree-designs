@@ -16,6 +16,7 @@ const Elica = lazy(() => import('./pages/Elica.jsx'));
 const OurWork = lazy(() => import('./pages/OurWork.jsx'));
 const Contact = lazy(() => import('./pages/Contact.jsx'));
 const Calculator = lazy(() => import('./pages/Calculator.jsx'));
+const CustomPage = lazy(() => import('./pages/CustomPage.jsx'));
 const NotFound = lazy(() => import('./pages/NotFound.jsx'));
 
 const AdminLayout = lazy(() => import('./admin/AdminLayout.jsx'));
@@ -109,6 +110,10 @@ export default function App() {
             <Route path="enquiries" element={<Enquiries />} />
             <Route path="settings" element={<Settings />} />
           </Route>
+
+          {/* Pages the studio builds in the admin. Last, so every
+              hand-built route above still wins its address. */}
+          <Route path="/:slug" element={page(CustomPage)} />
 
           <Route path="*" element={page(NotFound)} />
         </Routes>

@@ -82,6 +82,8 @@ export function SiteProvider({ children }) {
     () => ({
       settings,
       ready,
+      // Pages the studio built and ticked "show in the menu".
+      customPages: Array.isArray(settings.custom_pages) ? settings.custom_pages : [],
       brand: settings.brand ?? FALLBACK.brand,
       contact: settings.contact ?? FALLBACK.contact,
       social: settings.social ?? {},

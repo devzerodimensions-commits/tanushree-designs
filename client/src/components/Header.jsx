@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useSite } from '../context/SiteContext.jsx';
@@ -19,10 +19,24 @@ export const NAV = [
 export const Logo = LogoLockup;
 
 export default function Header() {
-  const { contact, settings } = useSite();
+  const { contact, settings, customPages } = useSite();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const innerRef = useRef(null);
+  const navRef = useRef(null);
+  const actionsRef = useRef(null);
+  /** The nav's natural width, remembered from the last time it was on screen. */
+  const wanted = useRef(0);
   const { pathname } = useLocation();
+
+  const announce = settings?.announcement;
+
+  // The fixed pages, then whatever the studio has built and chosen to show.
+  const links = [
+    ...NAV,
+    ...customPages.map((p) => ({ to: `/${p.slug}`, label: p.title })),
+  ];
 
   useScrollLock(open);
 
@@ -35,7 +49,59 @@ export default function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const announce = settings?.announcement;
+  /*
+   * Whether the bar can hold every link, measured rather than guessed.
+   *
+   * The studio adds pages to the menu from the admin, so neither the number
+   * of links nor the length of their names is known here — a media query
+   * cannot decide this, and a fixed allowance per link is wrong the moment
+   * someone names a page "Frequently Asked Questions". So the nav is asked
+   * how wide it would like to be and compared with the room left over.
+   *
+   * The nav clips rather than pushes (overflow: hidden in the stylesheet), so
+   * scrollWidth still reports its full width while it is on screen. That
+   * measurement is remembered, because once collapsed the nav is not rendered
+   * and can no longer be asked.
+   */
+  useEffect(() => {
+    const inner = innerRef.current;
+    if (!inner) return undefined;
+
+    const measure = () => {
+      const nav = navRef.current;
+      if (nav) wanted.current = Math.max(nav.scrollWidth, 0) || wanted.current;
+      if (!wanted.current) return;
+
+      const cs = getComputedStyle(inner);
+      const gap = parseFloat(cs.gap) || 0;
+      const room =
+        inner.clientWidth -
+        parseFloat(cs.paddingLeft) -
+        parseFloat(cs.paddingRight) -
+        // The logo is the first child; it renders its own element, so it is
+        // measured in place rather than through a wrapper.
+        (inner.firstElementChild?.offsetWidth ?? 0) -
+        (actionsRef.current?.offsetWidth ?? 0) -
+        gap * 2;
+
+      // A little hysteresis so a pixel of rounding cannot make it flicker.
+      setCollapsed((was) => (was ? wanted.current + 12 > room : wanted.current > room));
+    };
+
+    measure();
+
+    // Both signals: the observer catches the header changing size on its own
+    // (a longer phone number, a font finishing loading), and the window event
+    // catches the ordinary case of someone resizing their browser.
+    const ro = new ResizeObserver(measure);
+    ro.observe(inner);
+    window.addEventListener('resize', measure, { passive: true });
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  }, [links.length]);
+
 
   return (
     <>
@@ -50,12 +116,16 @@ export default function Header() {
         </div>
       )}
 
-      <header className={`header${scrolled ? ' header--scrolled' : ''}`}>
-        <div className="shell header__inner">
+      <header
+        className={`header${scrolled ? ' header--scrolled' : ''}${
+          collapsed ? ' header--collapsed' : ''
+        }`}
+      >
+        <div className="shell header__inner" ref={innerRef}>
           <Logo />
 
-          <nav className="nav" aria-label="Primary">
-            {NAV.map((item) => (
+          <nav className="nav" aria-label="Primary" ref={navRef}>
+            {links.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
@@ -67,7 +137,7 @@ export default function Header() {
             ))}
           </nav>
 
-          <div className="header__actions">
+          <div className="header__actions" ref={actionsRef}>
             <a className="header__phone" href={`tel:${contact.phone_raw || contact.phone}`}>
               <Icon.phone />
               {contact.phone}
@@ -123,7 +193,7 @@ export default function Header() {
                 </button>
               </div>
 
-              {NAV.map((item) => (
+              {links.map((item) => (
                 <NavLink
                   key={item.to}
                   to={item.to}

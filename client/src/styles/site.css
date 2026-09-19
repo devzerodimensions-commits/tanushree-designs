@@ -88,6 +88,12 @@
   border-color: var(--line);
 }
 
+/* The 1280px shell is a reading width for body copy; a row of links and a
+   phone number is not body copy. Letting the header run wider is what makes
+   room for the pages the studio adds to the menu — otherwise the eighth link
+   could never fit, however large the screen. */
+.header > .shell { max-width: 1500px; }
+
 .header__inner {
   display: flex;
   align-items: center;
@@ -127,7 +133,10 @@
 @media (max-width: 380px)  { .brand__img { height: 32px; } }
 
 /* nav */
-.nav { display: flex; align-items: center; gap: 30px; }
+/* min-width/overflow so an oversized nav clips instead of stretching the bar.
+   That keeps the header one row whatever happens, and lets Header.jsx read the
+   nav's natural width from scrollWidth while deciding whether to collapse. */
+.nav { display: flex; align-items: center; gap: 30px; min-width: 0; overflow: hidden; }
 /* Seven items fit across the header, but only if a two-word label is allowed
    to keep its two words on one line. Without this "Modular Kitchen" and
    "Elica Chimney" break in half and the whole bar grows to two rows. */
@@ -143,12 +152,10 @@
    the window never buys it another pixel. Seven nav items, the phone number
    and a labelled button want about 1285px, so the label goes and the rhythm
    tightens for the whole desktop range rather than for a band of it. */
-@media (min-width: 1260px) {
-  .nav { gap: 16px; }
-  .nav__link { font-size: 0.84rem; }
-  .header__wa span { display: none; }
-  .header__wa { padding-left: 13px; padding-right: 13px; }
-}
+.header:not(.header--collapsed) .nav { gap: 16px; }
+.header:not(.header--collapsed) .nav__link { font-size: 0.84rem; }
+.header:not(.header--collapsed) .header__wa span { display: none; }
+.header:not(.header--collapsed) .header__wa { padding-left: 13px; padding-right: 13px; }
 
 .nav__link {
   position: relative;
@@ -216,11 +223,12 @@
 .burger.is-open span:nth-child(2) { opacity: 0; }
 .burger.is-open span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
 
-@media (max-width: 1259px) {
-  .nav, .header__phone { display: none; }
-  .burger { display: grid; }
-  .header__inner { min-height: 70px; }
-}
+/* Collapsing is decided in Header.jsx, because it depends on how many links
+   the studio has put in the menu as well as on the width of the window. */
+.header--collapsed .nav,
+.header--collapsed .header__phone { display: none; }
+.header--collapsed .burger { display: grid; }
+.header--collapsed .header__inner { min-height: 70px; }
 
 /* On small phones the header WhatsApp button crowds the logo, and the
    floating WhatsApp action already covers it. */
@@ -587,6 +595,21 @@
 .feature-row:nth-child(even) .feature-row__media { order: 2; }
 
 .feature-row__media { border-radius: var(--radius-lg); overflow: hidden; aspect-ratio: 5 / 4; }
+/* On a built page the author chooses the side, so the automatic alternation
+   must not fight them. */
+.feature-row--flip .feature-row__media { order: 2; }
+@media (max-width: 860px) {
+  .feature-row--flip .feature-row__media { order: -1; }
+}
+
+/* A picture placed on its own by the page builder. */
+.page-figure { border-radius: var(--radius-lg); overflow: hidden; background: var(--cream-deep); }
+.page-figure__caption {
+  margin-top: 14px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
 .feature-row__media img { width: 100%; height: 100%; object-fit: cover; }
 
 .pill-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
