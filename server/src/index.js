@@ -30,6 +30,7 @@ import {
   seedElicaPage,
   resetAdminPassword,
   seedMissingSectionKeys,
+  seedMissingSettings,
   seedTeamPhotos,
 } from './db/seed.js';
 
@@ -361,6 +362,9 @@ async function setupDatabase() {
 
       const pages = await seedMissingSectionKeys();
       if (pages) console.log(`[startup] new section keys added to ${pages} page(s)`);
+
+      const settings = await seedMissingSettings();
+      if (settings.length) console.log(`[startup] settings added: ${settings.join(', ')}`);
     }
     const reset = await resetAdminPassword();
     if (reset) {

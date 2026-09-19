@@ -903,6 +903,30 @@ export { run as seed };
  *
  * @returns {Promise<number>} how many pages gained a key
  */
+/**
+ * Add settings that did not exist when the database was first seeded.
+ *
+ * The full seed only runs on an empty database, so a setting introduced later
+ * — the header and footer menus, say — would never appear on a live site, and
+ * the admin screen for it would open empty. This inserts the missing keys with
+ * their defaults and leaves every existing value exactly as it is.
+ *
+ * @returns {Promise<string[]>} the keys that were added
+ */
+export async function seedMissingSettings() {
+  const added = [];
+  for (const setting of SETTINGS) {
+    const { rowCount } = await pool.query(
+      `INSERT INTO site_settings (key, value, label, group_name)
+       VALUES ($1, $2::jsonb, $3, $4)
+       ON CONFLICT (key) DO NOTHING`,
+      [setting.key, JSON.stringify(setting.value), setting.label, setting.group_name]
+    );
+    if (rowCount) added.push(setting.key);
+  }
+  return added;
+}
+
 export async function seedMissingSectionKeys() {
   let touched = 0;
   for (const page of PAGES) {
