@@ -212,6 +212,9 @@ export default function ModularKitchen() {
                 <a className="btn btn--gold" href={`tel:${contact.phone_raw || contact.phone}`}>
                   <Icon.phone /> Ask about appliances
                 </a>
+                <Link className="btn btn--outline-light" to="/elica-chimney">
+                  Elica chimneys <Icon.arrowRight />
+                </Link>
                 <Link className="btn btn--outline-light" to="/kitchen-price-calculator">
                   Price my kitchen <Icon.arrowRight />
                 </Link>

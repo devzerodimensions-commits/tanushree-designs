@@ -239,6 +239,20 @@ CREATE TABLE IF NOT EXISTS pages (
 
 -- Step 1: the layouts a visitor can choose, each with its own plan diagram
 -- and the wall segments that get measured in step 2.
+-- Chimney types shown on the Elica chimney page. Deliberately the same shape
+-- as kitchen_layouts so it reuses the generic CRUD router and admin screen.
+CREATE TABLE IF NOT EXISTS chimney_types (
+  id          SERIAL PRIMARY KEY,
+  title       VARCHAR(160) NOT NULL,
+  slug        VARCHAR(180) NOT NULL UNIQUE,
+  description TEXT,
+  image_url   TEXT,
+  best_for    VARCHAR(255),
+  features    JSONB        NOT NULL DEFAULT '[]'::jsonb,
+  sort_order  INTEGER      NOT NULL DEFAULT 0,
+  is_active   BOOLEAN      NOT NULL DEFAULT TRUE
+);
+
 CREATE TABLE IF NOT EXISTS calc_layouts (
   id          SERIAL PRIMARY KEY,
   title       VARCHAR(120) NOT NULL,

@@ -115,6 +115,7 @@ Change this immediately under **Settings → Account**.
 | `/`                | Hero slider, trust strip, intro, services, stats counters, featured projects, process, story, testimonials, CTA, contact form |
 | `/about-us`        | Story, stats, principles, process, team, testimonials                        |
 | `/modular-kitchen` | Six kitchen layouts, build detail rows, filterable materials, Elica appliances, recent kitchens, FAQs |
+| `/elica-chimney`   | Elica chimneys: the three mounting types, what decides the right one, recent kitchens, chimney FAQs |
 | `/our-work`        | Filterable + searchable project gallery                                      |
 | `/our-work/:slug`  | Project gallery with lightbox, spec table, related projects                  |
 | `/contact-us`      | Contact cards, validated form, Google Map, FAQs                              |
@@ -132,7 +133,11 @@ Everything the website renders is editable — nothing is hard-coded in the Reac
 components.
 
 **Content** — Projects (with gallery + featured toggle), Services, Kitchen
-Layouts, Materials, Categories, Testimonials, Team, Process Steps, Stats, FAQs.
+Layouts, Chimney Types, Materials, Categories, Testimonials, Team, Process
+Steps, Stats, FAQs.
+
+An FAQ's **category** decides where it appears: `chimney` entries show on the
+Elica page only, and are kept off the contact page. Everything else is shared.
 
 A testimonial can be pointed at the project it is about (**Testimonials →
 Project this review is about**). The website then shows that room's photograph
@@ -166,7 +171,7 @@ delete confirmation, and toast feedback.
 Public: `GET /api/settings · /api/pages/:slug · /api/services · /api/projects ·
 /api/projects/:slug · /api/categories · /api/kitchen-layouts · /api/materials ·
 /api/testimonials · /api/team · /api/process · /api/stats · /api/faqs ·
-/api/calculator`, and `POST /api/enquiries · POST /api/calculator/quote`.
+/api/chimney-types · /api/calculator`, and `POST /api/enquiries · POST /api/calculator/quote`.
 
 The estimate itself is worked out on the server from rates held in the
 database — never in the browser — and each wall measurement is clamped to the

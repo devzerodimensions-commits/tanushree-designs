@@ -187,16 +187,98 @@ const PROCESS = [
 const STATS = [];
 
 /** Answered from the studio's own published copy only. */
+/**
+ * Chimney types.
+ *
+ * These describe how a chimney is mounted — categories that exist across the
+ * whole market, not specific Elica models. No model names, suction figures,
+ * warranty terms or prices appear anywhere in this file: those vary by unit
+ * and quoting them here would put numbers in front of customers that nobody
+ * at the studio has approved.
+ */
+const CHIMNEY_TYPES = [
+  {
+    title: 'Wall-Mounted Chimney',
+    description:
+      'Fixes flat against the wall directly above a hob that sits against the wall. The most common arrangement in Indian kitchens, and the easiest to duct out because the wall is usually an external one.',
+    image_url: P.appliances,
+    best_for: 'Straight, L-shaped and U-shaped kitchens',
+    features: [
+      'Sits above a hob on an external or utility wall',
+      'Shortest duct run, so the least loss of suction',
+      'Widest choice of sizes and finishes',
+    ],
+  },
+  {
+    title: 'Island Chimney',
+    description:
+      'Suspended from the ceiling over a hob built into an island, with no wall behind it. The ducting is routed through the ceiling, so it is planned at the drawing stage rather than added later.',
+    image_url: P.kitchen8,
+    best_for: 'Open-plan kitchens with a hob on the island',
+    features: [
+      'Hangs over the island, finished on all four sides',
+      'Ceiling duct route planned before the slab work',
+      'Doubles as the light over the island',
+    ],
+  },
+  {
+    title: 'Built-In Chimney',
+    description:
+      'Housed inside a wall unit so only the intake is visible and the cabinetry runs unbroken across the wall. Chosen where the kitchen should read as joinery rather than appliances.',
+    image_url: P.kitchen3,
+    best_for: 'Kitchens where the run of cabinetry should stay unbroken',
+    features: [
+      'Concealed inside a purpose-built wall unit',
+      'Cabinet is made to the unit, not cut to fit afterwards',
+      'Keeps the elevation clean above the hob',
+    ],
+  },
+];
+
 const FAQS = [
   { category: 'process', question: 'What does the design process involve?', answer: 'Three stages. First we consult and understand — your lifestyle, cooking habits, storage needs and the space itself. Then we design and customize, working through layout, storage, materials, finishes and accessories until the design balances function and style. Finally we manufacture, deliver and install, managing the fitting so every component goes in seamlessly.' },
   { category: 'kitchen', question: 'Which kitchen layout will suit my space?', answer: 'We work with L-shaped, U-shaped, parallel, straight, island and open layouts. The right one depends on the shape of your room, where the plumbing sits and how many people cook at once — bring your floor plan to the studio and we will talk it through.' },
   { category: 'process', question: 'Do you handle installation yourselves?', answer: 'Yes. Installation is managed by our own team, so the same people are accountable for the fit and the finish.' },
   { category: 'process', question: 'Do you design more than kitchens?', answer: 'Yes. Alongside modular kitchens we design wardrobes, modular furniture and complete interior spaces, and we supply kitchen appliances as part of the kitchen.' },
+  { category: 'chimney', question: 'Ducted or recirculating — which should I choose?', answer: 'Ducted, wherever the room allows it. A ducted chimney pushes smoke, steam and oil out of the building, which suits the amount of frying and tempering most Indian kitchens do. A recirculating chimney filters the air through charcoal and returns it to the room; it is the fallback when there is no route to an outside wall, and its charcoal filter has to be replaced periodically.' },
+  { category: 'chimney', question: 'What is the difference between a baffle filter and a filterless chimney?', answer: 'A baffle filter separates oil from the air using curved steel plates, and the plates need taking out and washing. A filterless auto-clean chimney has no mesh or baffle in the airflow at all — oil is thrown into a removable collector cup, and a heating cycle loosens what settles inside. There is nothing to buy or replace, only a cup to empty.' },
+  { category: 'chimney', question: 'What size chimney do I need?', answer: 'The chimney should be at least as wide as the hob beneath it. A 60 cm chimney suits a two or three burner hob, and 90 cm suits a three or four burner. Suction is rated in cubic metres per hour, and the figure you need depends on the volume of the room and how much you fry — we size it with you against your actual layout rather than quoting one number for every kitchen.' },
+  { category: 'chimney', question: 'Do you install the chimney as well as supply it?', answer: 'Yes. The chimney is fitted by the same team that installs the kitchen, and the duct route and cut-outs are drawn into the cabinetry before anything is manufactured, so nothing is cut into a finished unit on site.' },
   { category: 'general', question: 'Where is your studio?', answer: 'C-103, Sarkhej - Gandhinagar Hwy, near Gota Flyover, Vasant Nagar, Ognaj, Ahmedabad, Gujarat 380060. You are welcome to visit and see materials and finishes in person.' },
   { category: 'general', question: 'How do I start a project?', answer: 'Call +91-9881697860, message us on WhatsApp, or send your floor plan through the contact form and we will get back to you.' },
 ];
 
 const PAGES = [
+  {
+    slug: 'elica-chimney',
+    title: 'Elica Chimney',
+    hero_title: 'Elica Kitchen Chimneys',
+    hero_subtitle:
+      'Specified with the kitchen, ducted through the cabinetry and fitted by the same team — so the chimney belongs to the design rather than being hung on the wall afterwards.',
+    hero_image: P.appliances,
+    seo_title: 'Elica Kitchen Chimney in Ahmedabad | Tanushree Designs',
+    seo_description:
+      'Elica kitchen chimneys supplied and fitted with your modular kitchen in Ahmedabad — wall-mounted, island and built-in types, ducted into the cabinetry by our own team.',
+    sections: {
+      intro_eyebrow: 'Elica Chimneys',
+      intro_title: 'The chimney is drawn with the kitchen, not added to it',
+      intro_text:
+        'A chimney decided after the cabinetry is made means a duct cut through a finished unit and a hood that never quite lines up. We place the hob, size the chimney and draw the duct route while the kitchen is still on paper, so the cut-outs are manufactured in and the finished elevation is the one you approved.',
+      intro_image: P.kitchen7,
+      types_eyebrow: 'Types',
+      types_title: 'Three ways a chimney sits in a kitchen',
+      types_text:
+        'Which one suits you follows from where the hob sits and where the air can go — not from the specification sheet.',
+      choose_eyebrow: 'How to choose',
+      choose_title: 'What actually decides the right chimney',
+      choose_text:
+        'Four questions settle it, and we work through them with your floor plan in front of us.',
+      cta_title: 'Bring your floor plan and we will size it with you',
+      cta_text:
+        'Visit the studio to see finishes and fittings in person, or send the plan and we will come back to you.',
+      cta_image: P.kitchen,
+    },
+  },
   {
     slug: 'home',
     title: 'Home',
@@ -706,6 +788,17 @@ async function run() {
   }
   console.log(`  faqs            -> ${FAQS.length}`);
 
+  // ------------------------------------------------- chimney types
+  await pool.query('DELETE FROM chimney_types');
+  for (const [i, c] of CHIMNEY_TYPES.entries()) {
+    await pool.query(
+      `INSERT INTO chimney_types (title, slug, description, image_url, best_for, features, sort_order)
+       VALUES ($1,$2,$3,$4,$5,$6::jsonb,$7)`,
+      [c.title, slugify(c.title), c.description, c.image_url, c.best_for, JSON.stringify(c.features), i]
+    );
+  }
+  console.log(`  chimney types   -> ${CHIMNEY_TYPES.length}`);
+
   // ---------------------------------------------------- calculator
   await seedCalculator({ replace: true });
   console.log(
@@ -746,6 +839,59 @@ export { run as seed };
  *
  * @returns {Promise<boolean>} whether anything was written
  */
+/**
+ * Fill everything the Elica chimney page needs.
+ *
+ * Like the calculator, this page arrived after the site was live, so it has to
+ * be safe against a database full of real content: the chimney types are only
+ * written when that table is empty, the page row and the chimney FAQs only
+ * when they are missing. Nothing the studio has edited is overwritten.
+ *
+ * @returns {Promise<boolean>} whether anything was written
+ */
+export async function seedElicaPage() {
+  let wrote = false;
+
+  const { rows: types } = await pool.query('SELECT COUNT(*)::int AS n FROM chimney_types');
+  if (types[0].n === 0) {
+    for (const [i, c] of CHIMNEY_TYPES.entries()) {
+      await pool.query(
+        `INSERT INTO chimney_types (title, slug, description, image_url, best_for, features, sort_order)
+         VALUES ($1,$2,$3,$4,$5,$6::jsonb,$7)`,
+        [c.title, slugify(c.title), c.description, c.image_url, c.best_for, JSON.stringify(c.features), i]
+      );
+    }
+    wrote = true;
+  }
+
+  const { rows: faqs } = await pool.query(
+    "SELECT COUNT(*)::int AS n FROM faqs WHERE category = 'chimney'"
+  );
+  if (faqs[0].n === 0) {
+    for (const [i, f] of FAQS.filter((x) => x.category === 'chimney').entries()) {
+      await pool.query(
+        'INSERT INTO faqs (question, answer, category, sort_order) VALUES ($1,$2,$3,$4)',
+        [f.question, f.answer, f.category, i]
+      );
+    }
+    wrote = true;
+  }
+
+  const page = PAGES.find((x) => x.slug === 'elica-chimney');
+  if (page) {
+    const { rowCount } = await pool.query(
+      `INSERT INTO pages (slug, title, hero_title, hero_subtitle, hero_image, sections, seo_title, seo_description)
+       VALUES ($1,$2,$3,$4,$5,$6::jsonb,$7,$8)
+       ON CONFLICT (slug) DO NOTHING`,
+      [page.slug, page.title, page.hero_title, page.hero_subtitle, page.hero_image,
+       JSON.stringify(page.sections), page.seo_title, page.seo_description]
+    );
+    if (rowCount) wrote = true;
+  }
+
+  return wrote;
+}
+
 export async function seedCalculator({ replace = false } = {}) {
   const isEmpty = async (table) => {
     const { rows } = await pool.query(`SELECT COUNT(*)::int AS n FROM ${table}`);

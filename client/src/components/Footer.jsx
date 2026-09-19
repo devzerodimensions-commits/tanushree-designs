@@ -17,6 +17,7 @@ const SERVICE_LINKS = [
   ['Wardrobes & Storage', '/modular-kitchen#materials'],
   ['Kitchen Appliances', '/modular-kitchen#appliances'],
   ['Full Home Interiors', '/about-us'],
+  ['Elica Chimney', '/elica-chimney'],
   ['Kitchen Price Calculator', '/kitchen-price-calculator'],
   ['Our Work', '/our-work'],
 ];

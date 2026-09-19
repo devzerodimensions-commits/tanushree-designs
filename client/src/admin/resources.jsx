@@ -57,6 +57,29 @@ export const LayoutsPage = () => (
   />
 );
 
+/* --------------------------------------------------- chimney types */
+export const ChimneyTypesPage = () => (
+  <ResourcePage
+    resource="chimney-types"
+    title="Chimney Types"
+    subtitle="The cards on the Elica Chimney page"
+    singular="Chimney type"
+    emptyIcon="appliance"
+    columns={[
+      { key: 'title', label: 'Chimney type', render: cellThumb('image_url', 'title', 'best_for') },
+      { key: 'sort_order', label: 'Order', width: 80 },
+      { key: 'is_active', label: 'Status', width: 100, render: cellStatus },
+    ]}
+    fields={[
+      { name: 'title', label: 'Type name', type: 'text', required: true, half: true },
+      { name: 'best_for', label: 'Best for', type: 'text', half: true, placeholder: 'Straight and L-shaped kitchens' },
+      { name: 'description', label: 'Description', type: 'textarea', rows: 4 },
+      { name: 'image_url', label: 'Image', type: 'image' },
+      { name: 'features', label: 'Features', type: 'list', placeholder: 'Add a feature' },
+    ]}
+  />
+);
+
 /* -------------------------------------------------------- materials */
 export const MaterialsPage = () => (
   <ResourcePage

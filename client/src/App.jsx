@@ -12,6 +12,7 @@ import Home from './pages/Home.jsx';
 
 const About = lazy(() => import('./pages/About.jsx'));
 const ModularKitchen = lazy(() => import('./pages/ModularKitchen.jsx'));
+const Elica = lazy(() => import('./pages/Elica.jsx'));
 const OurWork = lazy(() => import('./pages/OurWork.jsx'));
 const ProjectDetail = lazy(() => import('./pages/ProjectDetail.jsx'));
 const Contact = lazy(() => import('./pages/Contact.jsx'));
@@ -37,6 +38,7 @@ const TeamPage = lazy(() => resources().then((m) => ({ default: m.TeamPage })));
 const ProcessPage = lazy(() => resources().then((m) => ({ default: m.ProcessPage })));
 const StatsPage = lazy(() => resources().then((m) => ({ default: m.StatsPage })));
 const FaqsPage = lazy(() => resources().then((m) => ({ default: m.FaqsPage })));
+const ChimneyTypesPage = lazy(() => resources().then((m) => ({ default: m.ChimneyTypesPage })));
 const CalcLayoutsPage = lazy(() => resources().then((m) => ({ default: m.CalcLayoutsPage })));
 const CalcPackagesPage = lazy(() => resources().then((m) => ({ default: m.CalcPackagesPage })));
 const CalcAddonsPage = lazy(() => resources().then((m) => ({ default: m.CalcAddonsPage })));
@@ -79,6 +81,7 @@ export default function App() {
           <Route path="/" element={page(Home)} />
           <Route path="/about-us" element={page(About)} />
           <Route path="/modular-kitchen" element={page(ModularKitchen)} />
+          <Route path="/elica-chimney" element={page(Elica)} />
           <Route path="/our-work" element={page(OurWork)} />
           <Route path="/our-work/:slug" element={page(ProjectDetail)} />
           <Route path="/contact-us" element={page(Contact)} />
@@ -91,6 +94,7 @@ export default function App() {
             <Route path="projects" element={<Projects />} />
             <Route path="services" element={<ServicesPage />} />
             <Route path="kitchen-layouts" element={<LayoutsPage />} />
+            <Route path="chimney-types" element={<ChimneyTypesPage />} />
             <Route path="materials" element={<MaterialsPage />} />
             <Route path="categories" element={<CategoriesPage />} />
             <Route path="testimonials" element={<TestimonialsPage />} />

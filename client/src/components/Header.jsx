@@ -10,6 +10,7 @@ export const NAV = [
   { to: '/', label: 'Home' },
   { to: '/about-us', label: 'About Us' },
   { to: '/modular-kitchen', label: 'Modular Kitchen' },
+  { to: '/elica-chimney', label: 'Elica Chimney' },
   { to: '/our-work', label: 'Our Work' },
   { to: '/kitchen-price-calculator', label: 'Price Calculator' },
   { to: '/contact-us', label: 'Contact Us' },

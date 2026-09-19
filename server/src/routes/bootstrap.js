@@ -31,6 +31,8 @@ async function loadAll() {
       (SELECT json_agg(x) FROM (
         SELECT * FROM materials WHERE is_active ORDER BY sort_order, id) x)       AS materials,
       (SELECT json_agg(x) FROM (
+        SELECT * FROM chimney_types WHERE is_active ORDER BY sort_order, id) x)   AS chimneys,
+      (SELECT json_agg(x) FROM (
         SELECT t.*,
                pr.title       AS project_title,
                pr.slug        AS project_slug,
@@ -94,10 +96,19 @@ const PAGE_SHAPES = {
     categories: d.categories,
     projects: d.projects,
   }),
+  'elica-chimney': (d) => ({
+    settings: d.settings,
+    page: d.pages['elica-chimney'] ?? null,
+    chimneys: d.chimneys,
+    faqs: d.faqs.filter((f) => f.category === 'chimney'),
+    projects: d.projects.filter((p) => p.category_slug === 'modular-kitchen').slice(0, 3),
+  }),
   contact: (d) => ({
     settings: d.settings,
     page: d.pages.contact ?? null,
-    faqs: d.faqs,
+    // Chimney specifics belong on the Elica page, not under "what people ask
+    // us first" on a contact page.
+    faqs: d.faqs.filter((f) => f.category !== 'chimney'),
   }),
 };
 

@@ -18,6 +18,7 @@ const NAV = [
       { to: '/admin/projects', label: 'Projects', icon: 'grid' },
       { to: '/admin/services', label: 'Services', icon: 'kitchen' },
       { to: '/admin/kitchen-layouts', label: 'Kitchen Layouts', icon: 'layout' },
+      { to: '/admin/chimney-types', label: 'Chimney Types', icon: 'appliance' },
       { to: '/admin/materials', label: 'Materials', icon: 'layers' },
       { to: '/admin/categories', label: 'Categories', icon: 'tag' },
       { to: '/admin/testimonials', label: 'Testimonials', icon: 'quote' },

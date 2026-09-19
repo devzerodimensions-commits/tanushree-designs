@@ -23,7 +23,7 @@ import bootstrapRoutes from './routes/bootstrap.js';
 import calculatorRoutes from './routes/calculator.js';
 import { crudRouter } from './routes/crud.js';
 import { migrate } from './db/migrate.js';
-import { isEmptyDatabase, seed, seedCalculator } from './db/seed.js';
+import { isEmptyDatabase, seed, seedCalculator, seedElicaPage } from './db/seed.js';
 
 dotenv.config();
 
@@ -219,6 +219,19 @@ app.use(
 );
 
 app.use(
+  '/api/chimney-types',
+  crudRouter({
+    table: 'chimney_types',
+    fields: ['title', 'description', 'image_url', 'best_for', 'features', 'sort_order', 'is_active'],
+    slugFrom: 'title',
+    required: ['title'],
+    jsonFields: ['features'],
+    intFields: ['sort_order'],
+    boolFields: ['is_active'],
+  })
+);
+
+app.use(
   '/api/calc-layouts',
   crudRouter({
     table: 'calc_layouts',
@@ -324,11 +337,17 @@ async function setupDatabase() {
     if (await isEmptyDatabase()) {
       console.log('[startup] empty database detected, seeding initial content');
       await seed();
-    } else if (await seedCalculator()) {
-      // The calculator shipped after the site was already live, so its tables
-      // exist but are empty on an established database. Fill them once; this
-      // skips any table that already has rows, so nothing is overwritten.
-      console.log('[startup] calculator options added (all rates 0 — set them in Admin)');
+    } else {
+      // The calculator and the Elica page both shipped after the site was
+      // already live, so their tables exist but are empty on an established
+      // database. Fill them once; both skip anything that already has rows,
+      // so content the studio has edited is never overwritten.
+      if (await seedCalculator()) {
+        console.log('[startup] calculator options added (all rates 0 — set them in Admin)');
+      }
+      if (await seedElicaPage()) {
+        console.log('[startup] Elica chimney page content added');
+      }
     }
     console.log('[startup] database ready');
   } catch (err) {
