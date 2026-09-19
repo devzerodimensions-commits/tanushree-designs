@@ -5,6 +5,7 @@ import { useSite } from '../context/SiteContext.jsx';
 import Icon from '../lib/icons.jsx';
 import Img from '../components/Img.jsx';
 import Seo from '../components/Seo.jsx';
+import PageBlocks from '../components/PageBlocks.jsx';
 import Reveal, { RevealGroup, RevealItem } from '../components/Reveal.jsx';
 import { Banner, CtaBand, ProcessGrid, SectionHead, StatsBand } from '../components/Sections.jsx';
 import Testimonials from '../components/Testimonials.jsx';
@@ -158,6 +159,8 @@ export default function About() {
         text="Bring your floor plan to the studio and leave with layout options, material samples and an indicative cost."
         image={settings.seo?.og_image || p?.hero_image}
       />
+      {/* Anything the studio has added to this page in the admin. */}
+      <PageBlocks blocks={p?.blocks} />
     </>
   );
 }

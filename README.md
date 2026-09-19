@@ -132,14 +132,12 @@ back-to-top buttons, and scroll-reveal animation throughout that respects
 Everything the website renders is editable — nothing is hard-coded in the React
 components.
 
-**Content** — Services, Kitchen Layouts, Chimney Types, Materials, Categories,
-Testimonials, Team, Process Steps, Stats, FAQs.
+**Content** — Projects, Services, Kitchen Layouts, Chimney Types, Materials,
+Categories, Testimonials, Team, Process Steps, Stats, FAQs.
 
-Projects were taken out of the sidebar at the studio's request. The screen is
-still there at **`/admin/projects`** if a project on Our Work ever needs
-changing — the route was kept deliberately so the gallery is not frozen for
-good. It feeds Our Work, the featured row on the home page, and the recent
-kitchens on the Modular Kitchen and Elica pages.
+Projects feed Our Work, the featured row on the home page ("Spaces We've
+Brought to Life") and the recent kitchens on the Modular Kitchen and Elica
+pages. Editing a project's cover image changes it everywhere it appears.
 
 An FAQ's **category** decides where it appears: `chimney` entries show on the
 Elica page only, and are kept off the contact page. Everything else is shared.
@@ -158,6 +156,16 @@ answers the visitor gave and the figure they were shown).
 > Until you set them in **Admin → Calculator → Packages & Rates**, the
 > calculator still collects the enquiry but shows *"we will call you with a
 > figure"* instead of a price. Set the rates before you promote the page.
+
+**Menus** — Settings → *Header & Footer*. Add, rename, reorder or remove any
+link in the top menu and in the footer's two columns, and rename the footer
+column headings. Destinations are picked from a list of the pages that exist
+rather than typed, so a menu item cannot point at nothing; "Somewhere else"
+takes a hand-typed path or an outside address.
+
+**Extra sections on an existing page** — Admin → Pages → pick any page →
+*Extra sections*. The page keeps its designed layout and whatever you add
+appears after it. Same block set as a page you build from scratch.
 
 **Build a page** — Admin → Pages → *New page*. Give it a name, and it is
 created switched off at an address made from that name. Stack up blocks —

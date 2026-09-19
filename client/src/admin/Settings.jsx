@@ -7,10 +7,12 @@ import { useSite } from '../context/SiteContext.jsx';
 import Icon from '../lib/icons.jsx';
 import { AdminHeader } from './AdminLayout.jsx';
 import { Field, ImagePicker, Switch, TableSkeleton, useToast } from './ui.jsx';
+import MenuEditor from './MenuEditor.jsx';
 
 const TABS = [
   ['brand', 'Brand & Colours'],
   ['contact', 'Contact & Social'],
+  ['menus', 'Header & Footer'],
   ['home', 'Home Page Blocks'],
   ['seo', 'SEO'],
   ['account', 'Account'],
@@ -41,6 +43,13 @@ export default function Settings() {
   useEffect(() => {
     if (data?.values) setValues(structuredClone(data.values));
   }, [data]);
+
+  // Pages the studio has built are offered in the destination dropdown, so a
+  // new page can be put in the menu without anyone typing its address.
+  const { data: pageList } = useApi(() => adminApi.pages(), []);
+  const pageDestinations = (pageList?.data ?? [])
+    .filter((p) => p.is_custom)
+    .map((p) => ({ to: `/${p.slug}`, label: `${p.title} (your page)` }));
 
   const setGroup = (group, key, value) =>
     setValues((v) => ({ ...v, [group]: { ...(v[group] ?? {}), [key]: value } }));
@@ -100,6 +109,61 @@ export default function Settings() {
             </button>
           ))}
         </div>
+
+        {/* ------------------------------------------------ menus */}
+        {tab === 'menus' && (
+          <>
+            <div className="a-card" style={{ marginBottom: 18 }}>
+              <h3 style={{ fontFamily: 'var(--font-sans)', fontSize: '1rem', fontWeight: 500, marginBottom: 6 }}>
+                The menu at the top
+              </h3>
+              <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginBottom: 20 }}>
+                Used in the header and in the first footer column. On a narrow screen this is what
+                the menu button opens.
+              </p>
+              <MenuEditor
+                value={values.menus?.header}
+                onChange={(v) => setGroup('menus', 'header', v)}
+                destinations={pageDestinations}
+                hint="Pages you built and ticked “Show in the menu” are added after these automatically, so you do not have to list them twice."
+              />
+            </div>
+
+            <div className="a-card">
+              <h3 style={{ fontFamily: 'var(--font-sans)', fontSize: '1rem', fontWeight: 500, marginBottom: 18 }}>
+                The footer columns
+              </h3>
+
+              <div className="a-grid-2" style={{ marginBottom: 20 }}>
+                <Field label="First column heading">
+                  <input
+                    type="text"
+                    value={values.menus?.footer_explore_title ?? ''}
+                    placeholder="Explore"
+                    onChange={(e) => setGroup('menus', 'footer_explore_title', e.target.value)}
+                  />
+                </Field>
+                <Field label="Second column heading">
+                  <input
+                    type="text"
+                    value={values.menus?.footer_services_title ?? ''}
+                    placeholder="What We Do"
+                    onChange={(e) => setGroup('menus', 'footer_services_title', e.target.value)}
+                  />
+                </Field>
+              </div>
+
+              <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginBottom: 14 }}>
+                Links in the second footer column. The first column follows the menu above.
+              </p>
+              <MenuEditor
+                value={values.menus?.footer_services}
+                onChange={(v) => setGroup('menus', 'footer_services', v)}
+                destinations={pageDestinations}
+              />
+            </div>
+          </>
+        )}
 
         {/* ------------------------------------------------ brand */}
         {tab === 'brand' && (

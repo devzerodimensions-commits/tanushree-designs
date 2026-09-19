@@ -288,17 +288,17 @@ export default function PagesEditor() {
           </div>
         )}
 
-        {form.is_custom && (
-          <div className="a-card" style={{ marginBottom: 18 }}>
-            <h3 style={{ fontFamily: 'var(--font-sans)', fontSize: '1rem', fontWeight: 500, marginBottom: 6 }}>
-              The page itself
-            </h3>
-            <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginBottom: 20 }}>
-              Stack up the pieces you want, in the order you want them. Click a block to open it.
-            </p>
-            <BlockEditor blocks={form.blocks} onChange={set('blocks')} />
-          </div>
-        )}
+        <div className="a-card" style={{ marginBottom: 18 }}>
+          <h3 style={{ fontFamily: 'var(--font-sans)', fontSize: '1rem', fontWeight: 500, marginBottom: 6 }}>
+            {form.is_custom ? 'The page itself' : 'Extra sections'}
+          </h3>
+          <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginBottom: 20 }}>
+            {form.is_custom
+              ? 'Stack up the pieces you want, in the order you want them. Click a block to open it.'
+              : 'This page has its own designed layout, which stays as it is. Anything you add here appears after it, at the bottom of the page.'}
+          </p>
+          <BlockEditor blocks={form.blocks} onChange={set('blocks')} />
+        </div>
 
         <div className="a-card">
           <h3 style={{ fontFamily: 'var(--font-sans)', fontSize: '1rem', fontWeight: 500, marginBottom: 18 }}>

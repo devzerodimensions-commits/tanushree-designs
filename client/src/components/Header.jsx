@@ -6,6 +6,11 @@ import { useScrollLock } from '../hooks/useApi.js';
 import Icon from '../lib/icons.jsx';
 import LogoLockup from './Logo.jsx';
 
+/**
+ * Where the menu comes from if the studio has not set one, and what the
+ * admin offers as a starting point. The live menu is edited under
+ * Settings -> Menus and arrives with the site settings.
+ */
 export const NAV = [
   { to: '/', label: 'Home' },
   { to: '/about-us', label: 'About Us' },
@@ -15,6 +20,12 @@ export const NAV = [
   { to: '/kitchen-price-calculator', label: 'Price Calculator' },
   { to: '/contact-us', label: 'Contact Us' },
 ];
+
+/** Keep only entries that have both a label and a destination. */
+export const cleanLinks = (list, fallback = []) => {
+  const rows = (Array.isArray(list) ? list : []).filter((l) => l?.label && l?.to);
+  return rows.length ? rows : fallback;
+};
 
 export const Logo = LogoLockup;
 
@@ -32,10 +43,14 @@ export default function Header() {
 
   const announce = settings?.announcement;
 
-  // The fixed pages, then whatever the studio has built and chosen to show.
+  // The menu the studio has set, then any page it has built and ticked "show
+  // in the menu" that is not already listed by hand.
+  const menu = cleanLinks(settings?.menus?.header, NAV);
   const links = [
-    ...NAV,
-    ...customPages.map((p) => ({ to: `/${p.slug}`, label: p.title })),
+    ...menu,
+    ...customPages
+      .filter((p) => !menu.some((l) => l.to === `/${p.slug}`))
+      .map((p) => ({ to: `/${p.slug}`, label: p.title })),
   ];
 
   useScrollLock(open);

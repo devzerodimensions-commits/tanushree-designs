@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { publicApi } from '../lib/api.js';
 import { useApi } from '../hooks/useApi.js';
 import Seo from '../components/Seo.jsx';
+import PageBlocks from '../components/PageBlocks.jsx';
 import Reveal, { RevealGroup, RevealItem } from '../components/Reveal.jsx';
 import { Banner, CtaBand } from '../components/Sections.jsx';
 import ProjectCard from '../components/ProjectCard.jsx';
@@ -131,6 +132,8 @@ export default function OurWork() {
         text="Tell us about your space and we will show you what is possible within your budget."
         image={p?.hero_image}
       />
+      {/* Anything the studio has added to this page in the admin. */}
+      <PageBlocks blocks={p?.blocks} />
     </>
   );
 }

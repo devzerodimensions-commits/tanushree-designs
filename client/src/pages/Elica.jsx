@@ -5,6 +5,7 @@ import { useSite } from '../context/SiteContext.jsx';
 import Icon from '../lib/icons.jsx';
 import Img from '../components/Img.jsx';
 import Seo from '../components/Seo.jsx';
+import PageBlocks from '../components/PageBlocks.jsx';
 import Reveal, { RevealGroup, RevealItem } from '../components/Reveal.jsx';
 import { Banner, CtaBand, SectionHead } from '../components/Sections.jsx';
 import ProjectCard from '../components/ProjectCard.jsx';
@@ -228,6 +229,8 @@ export default function Elica() {
         text={s.cta_text}
         image={s.cta_image}
       />
+      {/* Anything the studio has added to this page in the admin. */}
+      <PageBlocks blocks={p?.blocks} />
     </>
   );
 }

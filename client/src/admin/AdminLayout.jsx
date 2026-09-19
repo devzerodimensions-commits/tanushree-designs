@@ -15,6 +15,7 @@ const NAV = [
   {
     label: 'Content',
     items: [
+      { to: '/admin/projects', label: 'Projects', icon: 'grid' },
       { to: '/admin/services', label: 'Services', icon: 'kitchen' },
       { to: '/admin/kitchen-layouts', label: 'Kitchen Layouts', icon: 'layout' },
       { to: '/admin/chimney-types', label: 'Chimney Types', icon: 'appliance' },

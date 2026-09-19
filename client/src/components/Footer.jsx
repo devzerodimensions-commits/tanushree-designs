@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useSite } from '../context/SiteContext.jsx';
-import { NAV } from './Header.jsx';
+import { NAV, cleanLinks } from './Header.jsx';
 import LogoLockup from './Logo.jsx';
 import Icon from '../lib/icons.jsx';
 
@@ -12,24 +12,30 @@ const SOCIALS = [
   ['linkedin', Icon.linkedin, 'LinkedIn'],
 ];
 
-/*
- * Every link here goes to a page that is about the thing it names.
+/**
+ * Where the What We Do column comes from if the studio has not set one.
+ * The live list is edited under Settings -> Menus.
  *
- * Three used to point somewhere else: "Wardrobes & Storage" and "Kitchen
- * Appliances" jumped to anchors part-way down the kitchen page, and "Full
- * Home Interiors" went to About Us. A reader who clicked them did not arrive
- * anywhere that matched what they had clicked.
+ * Three entries used to point somewhere else: "Wardrobes & Storage" and
+ * "Kitchen Appliances" jumped to anchors part-way down the kitchen page, and
+ * "Full Home Interiors" went to About Us. Every link now goes to a page that
+ * is about the thing it names.
  */
 const SERVICE_LINKS = [
-  ['Modular Kitchens', '/modular-kitchen'],
-  ['Elica Chimney', '/elica-chimney'],
-  ['Kitchen Price Calculator', '/kitchen-price-calculator'],
-  ['Our Work', '/our-work'],
+  { label: 'Modular Kitchens', to: '/modular-kitchen' },
+  { label: 'Elica Chimney', to: '/elica-chimney' },
+  { label: 'Kitchen Price Calculator', to: '/kitchen-price-calculator' },
+  { label: 'Our Work', to: '/our-work' },
 ];
 
 export default function Footer() {
-  const { brand, contact, social } = useSite();
+  const { brand, contact, social, settings, customPages } = useSite();
   const year = new Date().getFullYear();
+
+  const menus = settings?.menus ?? {};
+  const explore = cleanLinks(menus.header, NAV);
+  const services = cleanLinks(menus.footer_services, SERVICE_LINKS);
+  const pages = customPages.filter((p) => !explore.some((l) => l.to === `/${p.slug}`));
 
   return (
     <footer className="footer">
@@ -50,22 +56,24 @@ export default function Footer() {
         </div>
 
         <div>
-          <h5>Explore</h5>
+          <h5>{menus.footer_explore_title || 'Explore'}</h5>
           <ul className="footer__links">
-            {NAV.map((item) => (
-              <li key={item.to}>
-                <Link to={item.to}>{item.label}</Link>
-              </li>
-            ))}
+            {[...explore, ...pages.map((p) => ({ to: `/${p.slug}`, label: p.title }))].map(
+              (item) => (
+                <li key={item.to}>
+                  <Link to={item.to}>{item.label}</Link>
+                </li>
+              )
+            )}
           </ul>
         </div>
 
         <div>
-          <h5>What We Do</h5>
+          <h5>{menus.footer_services_title || 'What We Do'}</h5>
           <ul className="footer__links">
-            {SERVICE_LINKS.map(([label, to]) => (
-              <li key={label}>
-                <Link to={to}>{label}</Link>
+            {services.map((item) => (
+              <li key={`${item.label}-${item.to}`}>
+                <Link to={item.to}>{item.label}</Link>
               </li>
             ))}
           </ul>

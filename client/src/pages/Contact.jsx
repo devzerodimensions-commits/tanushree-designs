@@ -3,6 +3,7 @@ import { useApi } from '../hooks/useApi.js';
 import { useSite } from '../context/SiteContext.jsx';
 import Icon from '../lib/icons.jsx';
 import Seo from '../components/Seo.jsx';
+import PageBlocks from '../components/PageBlocks.jsx';
 import Reveal from '../components/Reveal.jsx';
 import { Banner, SectionHead } from '../components/Sections.jsx';
 import ContactForm from '../components/ContactForm.jsx';
@@ -168,6 +169,8 @@ export default function Contact() {
           <Faq items={d.faqs ?? []} />
         </div>
       </section>
+      {/* Anything the studio has added to this page in the admin. */}
+      <PageBlocks blocks={p?.blocks} />
     </>
   );
 }

@@ -626,6 +626,32 @@ const SETTINGS = [
     },
   },
   {
+    // The header bar and the footer's two link columns, so the studio can add,
+    // rename, reorder or drop a menu item without anyone touching code.
+    key: 'menus',
+    group_name: 'menus',
+    label: 'Header & footer menus',
+    value: {
+      header: [
+        { label: 'Home', to: '/' },
+        { label: 'About Us', to: '/about-us' },
+        { label: 'Modular Kitchen', to: '/modular-kitchen' },
+        { label: 'Elica Chimney', to: '/elica-chimney' },
+        { label: 'Our Work', to: '/our-work' },
+        { label: 'Price Calculator', to: '/kitchen-price-calculator' },
+        { label: 'Contact Us', to: '/contact-us' },
+      ],
+      footer_explore_title: 'Explore',
+      footer_services_title: 'What We Do',
+      footer_services: [
+        { label: 'Modular Kitchens', to: '/modular-kitchen' },
+        { label: 'Elica Chimney', to: '/elica-chimney' },
+        { label: 'Kitchen Price Calculator', to: '/kitchen-price-calculator' },
+        { label: 'Our Work', to: '/our-work' },
+      ],
+    },
+  },
+  {
     key: 'announcement',
     group_name: 'general',
     label: 'Top announcement bar',
