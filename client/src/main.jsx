@@ -4,7 +4,6 @@ import { BrowserRouter } from 'react-router-dom';
 
 import './styles/base.css';
 import './styles/site.css';
-import './styles/admin.css';
 
 // The font stylesheet ships as media="print" so it cannot block the first
 // paint; enable it as soon as the bundle runs.

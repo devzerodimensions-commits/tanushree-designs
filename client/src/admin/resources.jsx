@@ -368,25 +368,6 @@ export const CalcLayoutsPage = () => (
             ? r.segments.map((x) => x.label).join(', ')
             : '—',
       },
-      {
-        key: 'materials',
-        label: 'Materials',
-        width: 150,
-        render: (r) => {
-          const items = Array.isArray(r.materials) ? r.materials : [];
-          const total = items.reduce((t, m) => t + (Number(m?.percent) || 0), 0);
-          if (!total) return <span className="chip chip--new">not set</span>;
-          return (
-            <b style={{ fontWeight: 600 }}>
-              {total}%
-              <span style={{ fontWeight: 400, color: 'var(--muted)', fontSize: '0.76rem' }}>
-                {' '}
-                ({items.filter((m) => Number(m?.percent) > 0).length} items)
-              </span>
-            </b>
-          );
-        },
-      },
       { key: 'sort_order', label: 'Order', width: 80 },
       { key: 'is_active', label: 'Status', width: 100, render: cellStatus },
     ]}
@@ -399,14 +380,6 @@ export const CalcLayoutsPage = () => (
         label: 'Wall segments (structured)',
         type: 'json',
         hint: 'One entry per wall to measure: label, min, max and default, all in feet',
-      },
-      {
-        name: 'materials',
-        label: 'What this shape is made of',
-        type: 'materials',
-        hint:
-          'How much of each material a kitchen of this shape uses, as a share of the whole. '
-          + 'For your own reference — visitors never see it.',
       },
     ]}
   />

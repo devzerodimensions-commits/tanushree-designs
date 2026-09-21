@@ -274,12 +274,6 @@ CREATE TABLE IF NOT EXISTS calc_layouts (
   is_active   BOOLEAN      NOT NULL DEFAULT TRUE
 );
 
--- What a kitchen of this shape is built from, as a share of the whole:
--- [{ "name": "Plywood (carcass)", "percent": 40 }, ...]. Typed by the studio
--- rather than worked out from a price, because it answers a different
--- question — not what a kitchen costs, but what it is made of.
-ALTER TABLE calc_layouts ADD COLUMN IF NOT EXISTS materials JSONB NOT NULL DEFAULT '[]'::jsonb;
-
 -- Step 3: package tiers. rate_per_ft is the price of one running foot of
 -- base + wall cabinetry in that tier.
 CREATE TABLE IF NOT EXISTS calc_packages (

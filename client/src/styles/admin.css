@@ -941,11 +941,28 @@
 }
 
 /* ============================================= what a package includes === */
+/* What one enquiry's kitchen takes, read down rather than across: the
+   quantities are the point, so they get the right-hand edge to line up on. */
+.q-needs { margin-top: 18px; }
+.q-needs h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 10px; }
+.q-needs ul { list-style: none; display: grid; gap: 7px; }
+.q-needs li {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 0.86rem;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--line);
+}
+.q-needs li:last-child { border-bottom: 0; padding-bottom: 0; }
+.q-needs li span { color: var(--muted); }
+.q-needs li b { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
 .incl { display: grid; gap: 8px; }
 .incl__head,
 .incl__row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 150px 164px auto;
+  grid-template-columns: minmax(0, 1fr) 150px 140px 164px auto;
   gap: 10px;
   align-items: center;
 }
@@ -956,6 +973,12 @@
   color: var(--muted);
 }
 .incl__empty { font-size: 0.86rem; color: var(--muted); }
+
+/* How much of the thing one running foot takes: the figure and what it is
+   counted in, kept together so they read as one answer. */
+.incl__qty { display: flex; align-items: center; gap: 6px; }
+.incl__qty input { text-align: right; min-width: 0; }
+.incl__qty select { padding-inline: 8px; min-width: 0; }
 
 .incl__price { display: flex; align-items: center; gap: 6px; }
 .incl__price span { color: var(--muted); font-size: 0.9rem; }
@@ -1001,8 +1024,12 @@
 
 @media (max-width: 760px) {
   .incl__head { display: none; }
-  .incl__row { grid-template-columns: 1fr auto; grid-template-areas: 'name actions' 'price share'; }
+  .incl__row {
+    grid-template-columns: 1fr auto;
+    grid-template-areas: 'name actions' 'qty qty' 'price share';
+  }
   .incl__row > input:first-child { grid-area: name; }
+  .incl__qty { grid-area: qty; }
   .incl__price { grid-area: price; }
   .incl__share { grid-area: share; }
   .incl__row .row-actions { grid-area: actions; }

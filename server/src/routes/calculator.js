@@ -35,8 +35,14 @@ function normaliseFeatures(features) {
   return features
     .map((f) =>
       typeof f === 'string'
-        ? { name: f, rate: 0 }
-        : { name: String(f?.name ?? '').trim(), rate: Math.max(0, Number(f?.rate) || 0) }
+        ? { name: f, rate: 0, qty: 0, unit: 'nos' }
+        : {
+            name: String(f?.name ?? '').trim(),
+            rate: Math.max(0, Number(f?.rate) || 0),
+            // How much of it one running foot takes, if the studio said.
+            qty: Math.max(0, Number(f?.qty) || 0),
+            unit: String(f?.unit || 'nos'),
+          }
     )
     .filter((f) => f.name);
 }
@@ -235,12 +241,15 @@ router.post(
     const cabinetry = Math.round(runningFeet * rate);
 
     // What is included, priced out for a kitchen this size.
+    // Where the studio has said how much of a thing a running foot takes,
+    // the line says how many this kitchen needs — "48 nos" rather than the
+    // running feet again, which was the same number on every row.
     const includedLines = withShare(normaliseFeatures(pkg.rows[0]?.features)).map((f) => ({
       name: f.name,
       rate: f.rate,
       percent: f.percent,
-      quantity: runningFeet,
-      unit: 'running ft',
+      quantity: f.qty > 0 ? Math.round(runningFeet * f.qty * 100) / 100 : runningFeet,
+      unit: f.qty > 0 ? f.unit : 'running ft',
       amount: Math.round(runningFeet * f.rate),
     }));
     const addonTotal = addons.reduce((sum, a) => sum + Number(a.price ?? 0), 0);

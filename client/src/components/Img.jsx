@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Icon from '../lib/icons.jsx';
+import localImages from 'virtual:responsive-images';
 
 const WIDTHS = [400, 640, 900, 1200, 1600];
 
@@ -9,6 +10,7 @@ const WIDTHS = [400, 640, 900, 1200, 1600];
  * A phone then downloads a 400px file instead of a 1200px one.
  */
 function buildSrcSet(src) {
+  if (localImages[src]) return localImages[src];
   if (!src || !src.includes('images.unsplash.com')) return undefined;
   try {
     const url = new URL(src);

@@ -42,7 +42,7 @@ function Hero({ slides, fallback }) {
 
   return (
     <section className="hero">
-      <AnimatePresence mode="sync">
+      <AnimatePresence mode="sync" initial={false}>
         <motion.div
           className="hero__media"
           key={slide.image}
@@ -58,7 +58,7 @@ function Hero({ slides, fallback }) {
       </AnimatePresence>
 
       <div className="shell hero__inner">
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait" initial={false}>
           <motion.div
             className="hero__content"
             key={slide.title}

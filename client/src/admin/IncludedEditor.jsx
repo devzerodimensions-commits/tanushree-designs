@@ -34,10 +34,18 @@ export function shares(items) {
   return out;
 }
 
+/** What a quantity can be counted in. */
+const UNITS = ['nos', 'set', 'pair', 'sq ft', 'running ft', 'metre', 'litre', 'kg'];
+
 const toItem = (f) =>
   typeof f === 'string'
-    ? { name: f, rate: 0 }
-    : { name: f?.name ?? '', rate: Number(f?.rate) || 0 };
+    ? { name: f, rate: 0, qty: 0, unit: 'nos' }
+    : {
+        name: f?.name ?? '',
+        rate: Number(f?.rate) || 0,
+        qty: Number(f?.qty) || 0,
+        unit: f?.unit || 'nos',
+      };
 
 export default function IncludedEditor({ value = [], onChange }) {
   const items = (Array.isArray(value) ? value : []).map(toItem);
@@ -59,6 +67,7 @@ export default function IncludedEditor({ value = [], onChange }) {
     <div className="incl">
       <div className="incl__head">
         <span>Product</span>
+        <span>How much per running ft</span>
         <span>Price per running ft</span>
         <span>Share</span>
         <span />
@@ -82,6 +91,27 @@ export default function IncludedEditor({ value = [], onChange }) {
               placeholder="Laminate shutters"
               onChange={(e) => setAt(i, { name: e.target.value })}
             />
+
+            {/* How much of the thing one running foot of kitchen takes.
+                Written alongside the price because that is when it is known,
+                and multiplied out per enquiry so a quote says "48 nos" rather
+                than leaving it to be worked out again by hand. */}
+            <div className="incl__qty">
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={f.qty}
+                onChange={(e) => setAt(i, { qty: Math.max(0, Number(e.target.value) || 0) })}
+              />
+              <select value={f.unit} onChange={(e) => setAt(i, { unit: e.target.value })}>
+                {UNITS.map((u) => (
+                  <option key={u} value={u}>
+                    {u}
+                  </option>
+                ))}
+              </select>
+            </div>
 
             <div className="incl__price">
               <span>₹</span>
@@ -135,7 +165,7 @@ export default function IncludedEditor({ value = [], onChange }) {
       <div className="incl__foot">
         <button
           className="btn btn--ghost btn--sm"
-          onClick={() => onChange([...items, { name: '', rate: 0 }])}
+          onClick={() => onChange([...items, { name: '', rate: 0, qty: 0, unit: 'nos' }])}
         >
           <Icon.plus /> Add a product
         </button>

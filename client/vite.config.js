@@ -1,8 +1,9 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import responsiveImages from './tooling/responsive-images.js';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), responsiveImages()],
   server: {
     // 5173 is Vite's default, so every project on this machine wants it —
     // the FlairMantra site uses it. Tanushree sits on 5174 so the two can run

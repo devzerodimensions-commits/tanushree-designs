@@ -310,6 +310,26 @@ export default function Quotes() {
                 </p>
               )}
 
+              {/* What this kitchen actually takes. The quantities come from
+                  what was typed against the package, multiplied by the length
+                  the visitor measured, so the answer is here rather than
+                  worked out again by hand for every enquiry. */}
+              {viewing.breakdown?.included?.length > 0 && (
+                <div className="q-needs">
+                  <h4>What this kitchen needs</h4>
+                  <ul>
+                    {viewing.breakdown.included.map((line) => (
+                      <li key={line.name}>
+                        <span>{line.name}</span>
+                        <b>
+                          {line.quantity} {line.unit}
+                        </b>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               {viewing.breakdown?.measured && (
                 <p style={{ marginTop: 10, fontSize: '0.85rem', color: 'var(--muted)' }}>
                   Wall measurements:{' '}

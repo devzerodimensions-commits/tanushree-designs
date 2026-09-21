@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import '../styles/admin.css';
 import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useSite } from '../context/SiteContext.jsx';
