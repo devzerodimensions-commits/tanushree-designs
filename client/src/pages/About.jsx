@@ -27,6 +27,7 @@ export default function About() {
       />
 
       <Banner
+        ready={Boolean(boot)}
         title={p?.hero_title || 'About Us'}
         text={p?.hero_subtitle}
         image={p?.hero_image}

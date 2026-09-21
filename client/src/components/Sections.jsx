@@ -24,7 +24,19 @@ export function SectionHead({ eyebrow, title, text, center = false, light = fals
 }
 
 /* --------------------------------------------------------- page banner */
-export function Banner({ title, text, image, crumbs = [] }) {
+/**
+ * The banner at the top of every page but the home page.
+ *
+ * `ready` is false until the page's own wording has been fetched. Before it
+ * was added, a page rendered its hard-coded fallback first — "About Us" over
+ * an empty frame — and replaced it a moment later with the real heading and
+ * photograph. On a warm server that swap was too quick to see; on a cold one
+ * it read as the banner changing into a different banner. Holding the words
+ * back until they are the right ones costs nothing: the frame, the height
+ * and the breadcrumb are the same either way, so nothing moves when they
+ * arrive.
+ */
+export function Banner({ title, text, image, crumbs = [], ready = true }) {
   return (
     <section className="banner">
       <div className="banner__media">
@@ -40,10 +52,17 @@ export function Banner({ title, text, image, crumbs = [] }) {
             </span>
           ))}
         </nav>
-        <Reveal>
-          <h1>{title}</h1>
-          {text && <p className="banner__text">{text}</p>}
-        </Reveal>
+        {ready ? (
+          <Reveal>
+            <h1>{title}</h1>
+            {text && <p className="banner__text">{text}</p>}
+          </Reveal>
+        ) : (
+          <div className="banner__wait" aria-hidden="true">
+            <span />
+            <span />
+          </div>
+        )}
       </div>
     </section>
   );

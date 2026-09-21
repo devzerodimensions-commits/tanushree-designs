@@ -49,6 +49,7 @@ export default function OurWork() {
       />
 
       <Banner
+        ready={Boolean(boot)}
         title={p?.hero_title || 'Our Work'}
         text={p?.hero_subtitle}
         image={p?.hero_image}

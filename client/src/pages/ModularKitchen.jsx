@@ -73,6 +73,7 @@ export default function ModularKitchen() {
       />
 
       <Banner
+        ready={Boolean(boot)}
         title={p?.hero_title || 'Modular Kitchen'}
         text={p?.hero_subtitle}
         image={p?.hero_image}

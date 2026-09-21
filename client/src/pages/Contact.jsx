@@ -30,6 +30,7 @@ export default function Contact() {
       />
 
       <Banner
+        ready={Boolean(boot)}
         title={p?.hero_title || 'Contact Us'}
         text={p?.hero_subtitle}
         image={p?.hero_image}

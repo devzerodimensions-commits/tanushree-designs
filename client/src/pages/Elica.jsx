@@ -63,6 +63,7 @@ export default function Elica() {
       />
 
       <Banner
+        ready={Boolean(boot)}
         title={p?.hero_title || 'Elica Kitchen Chimneys'}
         text={p?.hero_subtitle}
         image={p?.hero_image}
