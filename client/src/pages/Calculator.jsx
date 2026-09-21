@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { api } from '../lib/api.js';
@@ -13,6 +13,40 @@ const EASE = [0.22, 1, 0.36, 1];
 
 const rupees = (n, symbol = '₹') =>
   `${symbol}${Number(n || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
+
+/**
+ * Counts a figure up from zero when it first appears.
+ *
+ * The estimate is what the whole form has been working towards, so it is worth
+ * arriving rather than simply being there. Anyone who has asked their system
+ * for less movement is given the final number straight away.
+ */
+function useCountUp(target, duration = 900) {
+  const [value, setValue] = useState(target);
+
+  useEffect(() => {
+    const still = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (still || !target) {
+      setValue(target);
+      return undefined;
+    }
+
+    let frame;
+    const start = performance.now();
+    const tick = (now) => {
+      const t = Math.min((now - start) / duration, 1);
+      // Eased, so the figure slows as it settles instead of stopping dead.
+      setValue(Math.round(target * (1 - (1 - t) ** 3)));
+      if (t < 1) frame = requestAnimationFrame(tick);
+    };
+
+    setValue(0);
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [target, duration]);
+
+  return value;
+}
 
 export default function Calculator() {
   const { contact } = useSite();
@@ -48,6 +82,12 @@ export default function Calculator() {
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState(null);
   const [failed, setFailed] = useState(null);
+
+  // Held at the top level because hooks cannot be called from inside the
+  // result branch; they sit at zero until there is an estimate to count to.
+  const priced = Boolean(result?.data?.priced);
+  const low = useCountUp(priced ? Number(result.data.estimate_low) : 0);
+  const high = useCountUp(priced ? Number(result.data.estimate_high) : 0);
 
   const layout = useMemo(() => layouts.find((l) => l.id === layoutId), [layouts, layoutId]);
   const pkg = useMemo(() => packages.find((p) => p.id === packageId), [packages, packageId]);
@@ -645,26 +685,27 @@ export default function Calculator() {
                 {/* ------------------------------ result */}
                 {step === 3 && result && (
                   <div className="calc-result">
-                    <span className="calc-result__icon">
-                      <Icon.checkCircle />
-                    </span>
-
-                    {result.data?.priced ? (
+                    {priced ? (
                       <>
                         <span className="eyebrow eyebrow--center">Indicative estimate</span>
                         <div className="calc-result__figure">
-                          {rupees(result.data.estimate_low, currency)}
+                          {rupees(low, currency)}
                           <i>–</i>
-                          {rupees(result.data.estimate_high, currency)}
+                          {rupees(high, currency)}
                         </div>
+                        <p className="calc-result__note">
+                          Our design team will connect with you shortly to take it further.
+                        </p>
                       </>
                     ) : (
                       <>
-                        <h2 style={{ marginBottom: 10 }}>Thank you — we have your details</h2>
-                        <p className="text-muted" style={{ maxWidth: '52ch', marginInline: 'auto' }}>
+                        <span className="eyebrow eyebrow--center">Your enquiry is in</span>
+                        <h2 className="calc-result__heading">
+                          Our design team will connect with you shortly
+                        </h2>
+                        <p className="calc-result__note">
                           We price each kitchen from the actual drawings rather than a rate card, so
-                          our design team will call you with a figure for exactly what you have
-                          specified.
+                          the figure you are given will be for exactly what you have specified.
                         </p>
                       </>
                     )}
@@ -790,7 +831,7 @@ export default function Calculator() {
 
                     {/* Only meaningful next to a figure — without one it reads
                         as a caveat on an estimate the visitor never saw. */}
-                    {result.data?.priced && <p className="calc-disclaimer">{cfg.disclaimer}</p>}
+                    {priced && <p className="calc-disclaimer">{cfg.disclaimer}</p>}
 
                     <div className="stack stack--center" style={{ marginTop: 26 }}>
                       <a className="btn" href={`tel:${contact.phone_raw || contact.phone}`}>

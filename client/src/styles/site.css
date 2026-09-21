@@ -1930,15 +1930,12 @@
 
 /* ---- result ---- */
 .calc-result { text-align: center; padding: 10px 0; }
-.calc-result__icon {
-  display: grid; place-items: center;
-  width: 62px; height: 62px;
-  margin: 0 auto 20px;
-  border-radius: 50%;
-  background: var(--maroon);
-  color: #fff;
+.calc-result__heading { margin-bottom: 10px; }
+.calc-result__note {
+  max-width: 52ch;
+  margin: 0 auto;
+  color: var(--ink-soft);
 }
-.calc-result__icon svg { width: 30px; height: 30px; stroke-width: 2; }
 
 .calc-result__figure {
   display: flex;
@@ -1953,6 +1950,9 @@
   margin: 8px 0 6px;
 }
 .calc-result__figure i { font-style: normal; color: var(--grey-light); }
+/* The digits change every frame while the figure counts up; fixed-width
+   numerals stop the whole line shuffling sideways as they do. */
+.calc-result__figure { font-variant-numeric: tabular-nums; }
 
 .calc-breakdown {
   display: grid;
