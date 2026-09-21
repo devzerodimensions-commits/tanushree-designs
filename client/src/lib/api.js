@@ -28,8 +28,22 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
  *
  * Only reads are retried. Replaying a POST could submit an enquiry twice.
  */
-const READ_RETRIES = 4;
+const READ_RETRIES = 6;
 const RETRY_STATUS = new Set([408, 425, 429, 500, 502, 503, 504]);
+
+/**
+ * How long one attempt is given before it is abandoned and tried again.
+ *
+ * A sleeping instance does not refuse the connection — it accepts it and
+ * holds it while it wakes, so `fetch` neither resolves nor rejects. Nothing
+ * above could tell that apart from a slow network, so the retries never ran
+ * and the browser sat on a request for minutes with the section blank. A
+ * deadline turns that silence into a failure the loop can act on.
+ */
+const ATTEMPT_TIMEOUT_MS = 20_000;
+
+/** Backoff, capped so the later attempts stay close together. */
+const backoff = (n) => Math.min(800 * 2 ** n, 5_000);
 
 async function request(path, { method = 'GET', body, auth = false, isForm = false } = {}) {
   const headers = {};
@@ -44,23 +58,30 @@ async function request(path, { method = 'GET', body, auth = false, isForm = fals
   let res;
 
   for (;;) {
+    // Abandoned rather than awaited forever; see ATTEMPT_TIMEOUT_MS.
+    const control = new AbortController();
+    const deadline = setTimeout(() => control.abort(), ATTEMPT_TIMEOUT_MS);
+
     try {
       res = await fetch(`${BASE}${path}`, {
         method,
         headers,
         body: isForm ? body : body !== undefined ? JSON.stringify(body) : undefined,
+        signal: control.signal,
       });
     } catch {
       if (attempt < retries) {
-        await sleep(600 * 2 ** attempt);
+        await sleep(backoff(attempt));
         attempt += 1;
         continue;
       }
       throw new ApiError('Cannot reach the server. Please check your connection.', 0);
+    } finally {
+      clearTimeout(deadline);
     }
 
     if (RETRY_STATUS.has(res.status) && attempt < retries) {
-      await sleep(600 * 2 ** attempt);
+      await sleep(backoff(attempt));
       attempt += 1;
       continue;
     }

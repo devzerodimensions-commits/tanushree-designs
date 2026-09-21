@@ -415,6 +415,38 @@ async function setupDatabase() {
   }
 }
 
+/**
+ * Keep the instance awake by asking it for its own health check.
+ *
+ * The free hosting plan stops a service that has had no traffic for a
+ * quarter of an hour, and the next visitor pays for the wake-up: half a
+ * minute of nothing, then a page whose sections filled in only after a
+ * manual reload. The client survives that now, but the visitor still waits,
+ * and the only way not to wait is for the service never to sleep.
+ *
+ * Off unless KEEP_AWAKE_URL is set, because a service that never sleeps
+ * spends free instance-hours around the clock — roughly a whole month's
+ * allowance for one service. That is the account holder's call, not a
+ * default worth making for them.
+ */
+function keepAwake() {
+  const url = process.env.KEEP_AWAKE_URL;
+  if (!url) return;
+
+  const every = Number(process.env.KEEP_AWAKE_MINUTES || 12) * 60_000;
+  const ping = async () => {
+    try {
+      await fetch(`${url.replace(/\/$/, '')}/api/health`);
+    } catch (err) {
+      // A missed ping is not worth a restart; the next one is due shortly.
+      console.warn('[keep-awake] ping failed:', err.message);
+    }
+  };
+
+  setInterval(ping, every).unref();
+  console.log(`  Keep-awake             ->  every ${every / 60_000} min`);
+}
+
 const server = app.listen(PORT, () => {
   console.log(`
   Tanushree Designs API  ->  port ${PORT}`);
@@ -426,6 +458,8 @@ const server = app.listen(PORT, () => {
     cacheSuspend();
     setupDatabase();
   }
+
+  keepAwake();
 });
 
 /**

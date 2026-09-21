@@ -77,6 +77,14 @@ services:
       - key: CACHE_TTL_MS
         value: "60000"
 
+      # The free plan stops a service after 15 quiet minutes, and the next
+      # visitor waits out the wake-up. Setting this to the site's own address
+      # makes it ping itself and stay up. It then burns free instance-hours
+      # continuously — about a month's allowance for one service — so it is
+      # left unset, and deliberately turned on in the Render dashboard.
+      - key: KEEP_AWAKE_URL
+        sync: false
+
       # First admin account. Change the password from Settings -> Account
       # as soon as you have signed in for the first time.
       - key: ADMIN_NAME
