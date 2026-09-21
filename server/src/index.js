@@ -28,6 +28,7 @@ import {
   seed,
   seedBuildYourOwn,
   seedCalculator,
+  seedLayoutMaterials,
   seedElicaPage,
   resetAdminPassword,
   seedMissingSectionKeys,
@@ -245,10 +246,10 @@ app.use(
   '/api/calc-layouts',
   crudRouter({
     table: 'calc_layouts',
-    fields: ['title', 'description', 'image_url', 'segments', 'sort_order', 'is_active'],
+    fields: ['title', 'description', 'image_url', 'segments', 'materials', 'sort_order', 'is_active'],
     slugFrom: 'title',
     required: ['title'],
-    jsonFields: ['segments'],
+    jsonFields: ['segments', 'materials'],
     intFields: ['sort_order'],
     boolFields: ['is_active'],
   })
@@ -395,6 +396,13 @@ async function setupDatabase() {
       const settings = await seedMissingSettings();
       if (settings.length) console.log(`[startup] settings added: ${settings.join(', ')}`);
     }
+
+    // Outside the branch above: the layouts are seeded either way, but their
+    // material rows are newer than both paths, so a fresh database needs
+    // this just as much as an established one. It only fills a layout that
+    // has none, so running it every boot costs a single query.
+    const mixes = await seedLayoutMaterials();
+    if (mixes) console.log(`[startup] material rows added to ${mixes} layout(s)`);
     const reset = await resetAdminPassword();
     if (reset) {
       console.warn('');

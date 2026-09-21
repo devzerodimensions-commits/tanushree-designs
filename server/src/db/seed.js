@@ -1105,6 +1105,48 @@ export { run as seed };
  *
  * @returns {Promise<boolean>} whether anything was written
  */
+/**
+ * The materials a kitchen is built from, named but not yet measured.
+ *
+ * Only the names are seeded, every share at zero. What proportion of an
+ * L-shaped kitchen is plywood is a fact about how this studio builds, and
+ * guessing it would put a number in front of a customer that nobody here
+ * chose. Naming the rows means the screen opens ready to fill in rather than
+ * empty, which is the part that can be done without knowing the answer.
+ */
+const MATERIAL_ROWS = [
+  'Plywood (carcass)',
+  'Shutter finish (laminate / acrylic)',
+  'Hardware & fittings',
+  'Countertop',
+  'Edge banding & adhesives',
+  'Labour & installation',
+];
+
+/**
+ * Give every layout the material rows, on a database already in use.
+ *
+ * The column arrives empty on a live site, and the full seed only runs on an
+ * empty database, so without this the new screen would open with nothing on
+ * it. Only fills a layout that has none, so a mix already typed is left
+ * exactly as it is.
+ *
+ * @returns {Promise<number>} how many layouts were given rows
+ */
+export async function seedLayoutMaterials() {
+  const { rows } = await pool.query(
+    `SELECT id FROM calc_layouts
+      WHERE materials IS NULL OR jsonb_array_length(materials) = 0`
+  );
+  if (!rows.length) return 0;
+
+  const blank = JSON.stringify(MATERIAL_ROWS.map((name) => ({ name, percent: 0 })));
+  for (const r of rows) {
+    await pool.query('UPDATE calc_layouts SET materials = $1::jsonb WHERE id = $2', [blank, r.id]);
+  }
+  return rows.length;
+}
+
 export async function seedBuildYourOwn() {
   const { rows } = await pool.query('SELECT COUNT(*)::int AS n FROM calc_option_groups');
   if (rows[0].n > 0) return false;

@@ -63,6 +63,21 @@ function packageRate(pkg) {
  * points go to the items that lost the most in rounding, so the column always
  * adds to exactly 100.
  */
+/**
+ * What a layout is built from, kept only where it has been filled in.
+ *
+ * Unlike a package's share, this is typed rather than derived: it answers
+ * what a kitchen is made of, not what it costs, and no price can tell you
+ * that. Rows without a name or a share are dropped, so a half-filled list
+ * shows what it has rather than blank lines.
+ */
+function layoutMaterials(materials) {
+  if (!Array.isArray(materials)) return [];
+  return materials
+    .map((m) => ({ name: String(m?.name ?? '').trim(), percent: Number(m?.percent) || 0 }))
+    .filter((m) => m.name && m.percent > 0);
+}
+
 function withShare(items) {
   const total = items.reduce((t, f) => t + f.rate, 0);
   if (total <= 0) return items.map((f) => ({ ...f, percent: 0 }));
@@ -100,7 +115,7 @@ router.get(
     const { rows } = await pool.query(`
       SELECT
         (SELECT json_agg(x) FROM (
-          SELECT id, title, slug, description, image_url, segments
+          SELECT id, title, slug, description, image_url, segments, materials
           FROM calc_layouts WHERE is_active ORDER BY sort_order, id) x)   AS layouts,
         (SELECT json_agg(x) FROM (
           SELECT id, title, slug, tier, description, image_url, features, rate_per_ft
@@ -123,7 +138,10 @@ router.get(
     const r = rows[0] ?? {};
     res.json({
       data: {
-        layouts: r.layouts ?? [],
+        layouts: (r.layouts ?? []).map((l) => ({
+          ...l,
+          materials: layoutMaterials(l.materials),
+        })),
         // Included items carry their share so the card can show name and
         // percentage. The rate itself stays on the server.
         packages: (r.packages ?? []).map((p) => {

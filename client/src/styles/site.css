@@ -1974,6 +1974,33 @@
    numerals stop the whole line shuffling sideways as they do. */
 .calc-result__figure { font-variant-numeric: tabular-nums; }
 
+/* What the shape is built from: one row per material, its share drawn as
+   well as written so the mix can be read at a glance. */
+.calc-mix { margin-top: 30px; text-align: left; }
+.calc-mix h3 { font-size: 1.02rem; margin-bottom: 14px; }
+.calc-mix ul { list-style: none; display: grid; gap: 12px; }
+.calc-mix li {
+  display: grid;
+  grid-template-columns: minmax(120px, 1.1fr) minmax(0, 2fr) 46px;
+  align-items: center;
+  gap: 14px;
+  font-size: 0.88rem;
+}
+.calc-mix__name { color: var(--ink-soft); }
+.calc-mix__bar {
+  height: 8px;
+  border-radius: 99px;
+  background: var(--cream);
+  overflow: hidden;
+}
+.calc-mix__bar i { display: block; height: 100%; background: var(--maroon); border-radius: 99px; }
+.calc-mix li b { text-align: right; font-variant-numeric: tabular-nums; }
+
+@media (max-width: 560px) {
+  .calc-mix li { grid-template-columns: minmax(0, 1fr) 46px; }
+  .calc-mix__bar { grid-column: 1 / -1; order: 3; }
+}
+
 .calc-breakdown {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));

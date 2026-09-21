@@ -18,6 +18,7 @@ import {
   useToast,
 } from './ui.jsx';
 import IncludedEditor from './IncludedEditor.jsx';
+import MaterialsEditor from './MaterialsEditor.jsx';
 
 /**
  * Schema-driven CRUD screen. Every simple content table in the admin
@@ -171,6 +172,8 @@ export default function ResourcePage({
         return <ListEditor value={value ?? []} onChange={set(f.name)} placeholder={f.placeholder} />;
       case 'included':
         return <IncludedEditor value={value ?? []} onChange={set(f.name)} />;
+      case 'materials':
+        return <MaterialsEditor value={value ?? []} onChange={set(f.name)} />;
       case 'select': {
         const options = f.optionsFrom ? (remoteOptions[f.name] ?? []) : f.options;
         return (

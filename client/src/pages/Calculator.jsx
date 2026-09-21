@@ -733,6 +733,30 @@ export default function Calculator() {
                       </dl>
                     )}
 
+                    {/* What a kitchen of this shape is built from. Typed by
+                        the studio against the layout, so it shows whether or
+                        not anything has been priced — "how much plywood goes
+                        into an L-shaped kitchen" stands on its own. */}
+                    {(layout?.materials ?? []).length > 0 && (
+                      <div className="calc-mix">
+                        {/* Named without an article: "a Straight Kitchen"
+                            and "an L-Shaped Kitchen" do not take the same
+                            one, and the titles are the studio's to change. */}
+                        <h3>{layout.title} — what it is made of</h3>
+                        <ul>
+                          {layout.materials.map((m) => (
+                            <li key={m.name}>
+                              <span className="calc-mix__name">{m.name}</span>
+                              <span className="calc-mix__bar">
+                                <i style={{ width: `${Math.min(100, m.percent)}%` }} />
+                              </span>
+                              <b>{m.percent}%</b>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
                     {/* What the package includes, priced out for this kitchen:
                         product, price, and its share of the package. */}
                     {result.data?.breakdown?.included?.length > 0 && (
