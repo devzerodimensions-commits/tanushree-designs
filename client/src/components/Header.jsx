@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
+import { prefetchOn } from '../lib/prefetch.js';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useSite } from '../context/SiteContext.jsx';
 import { useScrollLock } from '../hooks/useApi.js';
@@ -145,6 +146,7 @@ export default function Header() {
                 key={item.to}
                 to={item.to}
                 end={item.to === '/'}
+                {...prefetchOn(item.to)}
                 className={({ isActive }) => `nav__link${isActive ? ' is-active' : ''}`}
               >
                 {item.label}
@@ -213,6 +215,7 @@ export default function Header() {
                   key={item.to}
                   to={item.to}
                   end={item.to === '/'}
+                  {...prefetchOn(item.to)}
                   className={({ isActive }) => `drawer__link${isActive ? ' is-active' : ''}`}
                 >
                   {item.label}

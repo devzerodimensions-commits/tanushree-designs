@@ -115,9 +115,39 @@ export const api = {
 };
 
 /* ----------------------------------------------------- public reads */
+
+/**
+ * Briefly remembers what a page's content request answered.
+ *
+ * Two things need it. A prefetch started while the pointer rests on a link
+ * is only worth making if the page picks the answer up when it mounts a
+ * moment later, rather than asking again. And stepping back to a page just
+ * visited should not re-ask for wording that cannot have changed in the
+ * meantime.
+ *
+ * The window is short and the store is per-tab, so a reload always asks
+ * again — a studio checking its own edit is never more than a refresh away
+ * from seeing it. A failed read is dropped rather than remembered, so the
+ * page that asks next gets a real attempt and a real error.
+ */
+const READ_CACHE_MS = 30_000;
+const reads = new Map();
+
+function cachedGet(path) {
+  const hit = reads.get(path);
+  if (hit && Date.now() - hit.at < READ_CACHE_MS) return hit.promise;
+
+  const promise = request(path).catch((err) => {
+    reads.delete(path);
+    throw err;
+  });
+  reads.set(path, { at: Date.now(), promise });
+  return promise;
+}
+
 export const publicApi = {
   /** Everything a page renders, in one request. */
-  bootstrap: (page) => api.get(`/bootstrap/${page}`),
+  bootstrap: (page) => cachedGet(`/bootstrap/${page}`),
   settings: () => api.get('/settings'),
   page: (slug) => api.get(`/pages/${slug}`),
   menuLinks: () => api.get('/pages/menu/links'),
