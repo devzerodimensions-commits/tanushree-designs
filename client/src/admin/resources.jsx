@@ -406,7 +406,7 @@ export const CalcLayoutsPage = () => (
         type: 'materials',
         hint:
           'How much of each material a kitchen of this shape uses, as a share of the whole. '
-          + 'Shown to the visitor with their estimate.',
+          + 'For your own reference — visitors never see it.',
       },
     ]}
   />

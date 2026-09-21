@@ -10,9 +10,11 @@ import Icon from '../lib/icons.jsx';
  *
  * The total is shown rather than enforced. A studio part-way through filling
  * the list would otherwise be blocked by its own unfinished work, and a mix
- * that deliberately covers only the board and the finish is a legitimate
- * thing to publish. It is only flagged when it goes over 100%, which cannot
- * be meant.
+ * that deliberately covers only the board and the finish is a fair thing to
+ * record. It is only flagged when it goes over 100%, which cannot be meant.
+ *
+ * Nothing here reaches a visitor: the mix is the studio's own working note
+ * and the public calculator does not even select the column.
  */
 
 const toItem = (m) => ({
@@ -76,7 +78,7 @@ export default function MaterialsEditor({ value = [], onChange }) {
               <span>%</span>
             </div>
 
-            <div className="incl__share">
+            <div className="incl__share" data-empty={percent > 0 ? 'false' : 'true'}>
               <div className="incl__bar">
                 <i style={{ width: `${Math.min(100, percent)}%` }} />
               </div>
@@ -117,7 +119,7 @@ export default function MaterialsEditor({ value = [], onChange }) {
 
         <p className="incl__total">
           {total === 0 ? (
-            <>Nothing filled in yet, so the calculator does not show a material breakdown.</>
+            <>Nothing filled in yet. Put a share against each material to build the mix.</>
           ) : total > 100 ? (
             <b style={{ color: 'var(--danger, #b3261e)' }}>
               These add up to {total}%, which is more than the whole kitchen. Lower one of them.

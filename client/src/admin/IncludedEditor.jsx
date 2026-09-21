@@ -93,7 +93,15 @@ export default function IncludedEditor({ value = [], onChange }) {
               />
             </div>
 
-            <div className="incl__share" title="Worked out from the prices">
+            <div
+              className="incl__share"
+              data-empty={total > 0 ? 'false' : 'true'}
+              title={
+                total > 0
+                  ? 'Worked out from the prices'
+                  : 'Put a price against a product and the shares appear'
+              }
+            >
               <div className="incl__bar">
                 <i style={{ width: `${percent}%` }} />
               </div>

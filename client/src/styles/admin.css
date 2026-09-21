@@ -945,7 +945,7 @@
 .incl__head,
 .incl__row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 150px 120px auto;
+  grid-template-columns: minmax(0, 1fr) 150px 164px auto;
   gap: 10px;
   align-items: center;
 }
@@ -961,10 +961,30 @@
 .incl__price span { color: var(--muted); font-size: 0.9rem; }
 .incl__price input { text-align: right; }
 
-.incl__share { display: grid; gap: 5px; justify-items: end; }
-.incl__share b { font-weight: 500; font-size: 0.85rem; }
-.incl__bar { width: 100%; height: 4px; border-radius: 2px; background: var(--cream-deep); overflow: hidden; }
-.incl__bar i { display: block; height: 100%; background: var(--maroon); border-radius: 2px; transition: width var(--t-fast); }
+/* The figure sits beside its bar rather than under it. Stacked, it had the
+   width of the column to be read across and ended up as small print below
+   the thing it was labelling — the share was the one number on the row that
+   could not be read at a glance. */
+.incl__share {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 46px;
+  align-items: center;
+  gap: 10px;
+}
+.incl__share b {
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-align: right;
+  color: var(--ink);
+  /* Fixed-width digits, so 9% and 100% line up down the column. */
+  font-variant-numeric: tabular-nums;
+}
+/* Nothing to divide up yet: say so quietly rather than in the same weight
+   as a real figure. */
+.incl__share[data-empty='true'] b { color: var(--muted); font-weight: 500; }
+
+.incl__bar { width: 100%; height: 7px; border-radius: 99px; background: var(--cream-deep); overflow: hidden; }
+.incl__bar i { display: block; height: 100%; background: var(--maroon); border-radius: 99px; transition: width var(--t-fast); }
 
 .incl__foot {
   display: flex;
