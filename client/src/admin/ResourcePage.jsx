@@ -36,6 +36,7 @@ export default function ResourcePage({
   defaults = {},
   emptyIcon = 'file',
   searchKeys = ['title', 'name'],
+  notice,
 }) {
   const { setOpen } = useOutletContext();
   const toast = useToast();
@@ -231,6 +232,11 @@ export default function ResourcePage({
       </AdminHeader>
 
       <div className="admin-body">
+        {/* A screen can warn about the state of its own rows — "nothing is
+            priced yet", say. Given the loaded rows so it can decide, and
+            skipped while they are still loading so it cannot flash. */}
+        {!loading && notice?.(data?.data ?? [])}
+
         <div className="a-toolbar">
           <div className="a-search">
             <Icon.search />

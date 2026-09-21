@@ -465,6 +465,23 @@
 .repeat-row input { flex: 1; }
 
 /* ---------------------------------------------------------- toolbar */
+/* A screen explaining the state of its own rows. Amber rather than red —
+   nothing is broken, something is simply not filled in yet. */
+.a-notice {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 16px;
+  padding: 14px 18px;
+  border: 1px solid #f2e0b5;
+  border-left: 4px solid #d99a1c;
+  border-radius: 10px;
+  background: #fdf8ec;
+  color: #6b4f14;
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+.a-notice b { font-weight: 600; }
+
 .a-toolbar {
   display: flex;
   flex-wrap: wrap;

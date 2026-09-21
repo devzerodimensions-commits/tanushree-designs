@@ -385,9 +385,37 @@ export const CalcLayoutsPage = () => (
   />
 );
 
+/**
+ * Said plainly on the screen where it can be fixed.
+ *
+ * With every rate at zero the calculator has no figure to show, so it falls
+ * back to taking the enquiry — which from the outside looks like a broken
+ * page rather than a deliberate choice. The banner names the cause, and
+ * disappears the moment one package is priced.
+ */
+const unpricedNotice = (rows) => {
+  const priced = rows.filter((r) => {
+    const items = Array.isArray(r.features) ? r.features : [];
+    return items.reduce((t, f) => t + (Number(f?.rate) || 0), 0) > 0 || Number(r.rate_per_ft) > 0;
+  });
+  if (priced.length) return null;
+
+  return (
+    <div className="a-notice">
+      <b>No package has a price yet, so the calculator is not showing a figure.</b>
+      <span>
+        It asks the visitor for their details and says your team will be in touch. To show an
+        estimate instead, open a package below, type a price against each product, and press
+        Save — the front of the site changes the moment you do.
+      </span>
+    </div>
+  );
+};
+
 export const CalcPackagesPage = () => (
   <ResourcePage
     resource="calc-packages"
+    notice={unpricedNotice}
     title="Calculator — Packages"
     subtitle="Step 3: the tiers a visitor picks, and the rate each one is priced at"
     singular="Package"
