@@ -457,7 +457,7 @@ export const CalcPackagesPage = () => (
         name: 'features',
         label: 'What is included',
         type: 'included',
-        hint: 'Enter each product’s price and usage percentage (0–100). These are independent values; the package rate is set separately.',
+        hint: 'Enter each product’s price and usage percentage. All product percentages together must total exactly 100%; prices remain separate.',
       },
     ]}
   />

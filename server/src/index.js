@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { usageError } from '../../shared/usage-percentages.mjs';
 import { fileURLToPath } from 'node:url';
 import express from 'express';
 import cors from 'cors';
@@ -258,6 +259,11 @@ app.use(
   '/api/calc-packages',
   crudRouter({
     table: 'calc_packages',
+    validate: (body) => {
+      if (!Object.hasOwn(body, 'features')) return;
+      const error = usageError(body.features);
+      if (error) throw ApiError.badRequest(error);
+    },
     fields: ['title', 'tier', 'description', 'image_url', 'features', 'rate_per_ft', 'sort_order', 'is_active'],
     slugFrom: 'title',
     required: ['title'],

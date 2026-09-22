@@ -18,6 +18,7 @@ import {
   useToast,
 } from './ui.jsx';
 import IncludedEditor from './IncludedEditor.jsx';
+import { usageError } from '../../../shared/usage-percentages.mjs';
 
 /**
  * Schema-driven CRUD screen. Every simple content table in the admin
@@ -100,6 +101,13 @@ export default function ResourcePage({
       return;
     }
 
+    for (const field of fields.filter((f) => f.type === 'included')) {
+      const error = usageError(form[field.name] ?? []);
+      if (error) {
+        toast.error(error);
+        return;
+      }
+    }
     setSaving(true);
     try {
       if (editing === 'new') {

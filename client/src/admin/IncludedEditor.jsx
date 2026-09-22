@@ -1,4 +1,5 @@
 import Icon from '../lib/icons.jsx';
+import { percentagePoints, usageTotal } from '../../../shared/usage-percentages.mjs';
 
 /** Product usage is independent of the package price. */
 
@@ -16,6 +17,7 @@ const toItem = (f) =>
 
 export default function IncludedEditor({ value = [], onChange }) {
   const items = (Array.isArray(value) ? value : []).map(toItem);
+  const total = usageTotal(items);
 
   const setAt = (i, patch) =>
     onChange(items.map((f, n) => (n === i ? { ...f, ...patch } : f)));
@@ -44,6 +46,7 @@ export default function IncludedEditor({ value = [], onChange }) {
       )}
 
       {items.map((f, i) => {
+        const available = Math.max(0, 10000 - total + percentagePoints(f.usage_percent)) / 100;
 
         return (
           <div className="incl__row" key={i}>
@@ -62,9 +65,9 @@ export default function IncludedEditor({ value = [], onChange }) {
                 onChange={(e) => setAt(i, { price: Math.max(0, Number(e.target.value) || 0) })} />
             </div>
             <div className="incl__percent">
-              <input aria-label={`Usage percentage for ${f.name || 'product'}`} type="number" min="0" max="100" step="0.01"
+              <input aria-label={`Usage percentage for ${f.name || 'product'}`} type="number" min="0" max={available} step="0.01"
                 value={f.usage_percent}
-                onChange={(e) => setAt(i, { usage_percent: Math.min(100, Math.max(0, Number(e.target.value) || 0)) })} />
+                onChange={(e) => setAt(i, { usage_percent: Math.min(available, Math.max(0, percentagePoints(e.target.value) / 100)) })} />
               <span aria-hidden="true">%</span>
             </div>
 
@@ -103,7 +106,11 @@ export default function IncludedEditor({ value = [], onChange }) {
           <Icon.plus /> Add a product
         </button>
 
-        <p className="incl__total">Enter price and usage percentage separately. Usage is not calculated from price.</p>
+        <p className="incl__total" role="status" aria-live="polite">
+          <b>Total: {total / 100}% / 100%</b>
+          {' · '}{total > 10000 ? `Over by ${(total - 10000) / 100}%` : `Remaining: ${(10000 - total) / 100}%`}
+          <br />All products together must total 100% before saving. Prices are separate.
+        </p>
       </div>
     </div>
   );

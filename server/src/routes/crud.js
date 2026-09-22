@@ -42,6 +42,7 @@ export function crudRouter(cfg) {
   const hasActive = fields.includes('is_active') || cfg.hasActive !== false;
 
   const normalise = (body) => {
+    cfg.validate?.(body);
     const data = {};
     for (const f of fields) {
       if (!(f in body)) continue;
