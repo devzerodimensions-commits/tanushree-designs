@@ -1907,22 +1907,27 @@
 /* ---- add-ons ---- */
 .calc-addons {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+  gap: 18px;
+  grid-auto-rows: 1fr;
 }
-.calc-addon { flex-direction: row; align-items: center; gap: 12px; padding-right: 38px; }
-.calc-addon__media { width: 78px; flex: none; align-self: stretch; }
-.calc-addon__media .img { height: 100%; }
-.calc-addon__body { padding: 12px 0; min-width: 0; }
-.calc-addon__body b { display: block; font-size: 0.88rem; font-weight: 600; }
-.calc-addon__body small { display: block; color: var(--muted); font-size: 0.76rem; line-height: 1.45; margin-top: 3px; }
+.calc-addon { flex-direction: column; align-items: stretch; gap: 0; padding: 0; min-width: 0; }
+.calc-addon:focus-visible { outline: 3px solid var(--maroon); outline-offset: 4px; }
+.calc-addon__media { display: block; width: 100%; flex: none; }
+.calc-addon__media .img { width: 100%; }
+.calc-addon__body { display: block; flex: 1; padding: 16px; min-width: 0; }
+.calc-addon__body b { display: block; font-size: 0.94rem; font-weight: 600; line-height: 1.5; }
+.calc-addon__body small { display: block; color: var(--muted); font-size: 0.81rem; line-height: 1.6; margin-top: 6px; }
 .calc-addon__check {
   position: absolute;
+  top: 12px;
   right: 10px;
-  width: 22px; height: 22px;
+  width: 26px; height: 26px;
   display: grid; place-items: center;
   border-radius: 6px;
   border: 1.5px solid var(--line);
+  background: var(--white);
+  box-shadow: var(--shadow-sm);
   color: transparent;
   transition: all var(--t-fast);
 }
@@ -2010,7 +2015,6 @@
 
 @media (max-width: 560px) {
   .calc-nav .btn { flex: 1; padding-inline: 18px; }
-  .calc-addon { padding-right: 34px; }
 }
 
 /* ================================= build your own package (calculator) === */
