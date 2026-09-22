@@ -375,12 +375,6 @@ export const CalcLayoutsPage = () => (
       { name: 'title', label: 'Layout name', type: 'text', required: true },
       { name: 'description', label: 'Short description', type: 'textarea', rows: 2 },
       { name: 'image_url', label: 'Plan diagram', type: 'image', hint: 'A simple top-down drawing of the shape' },
-      {
-        name: 'segments',
-        label: 'Wall segments (structured)',
-        type: 'json',
-        hint: 'One entry per wall to measure: label, min, max and default, all in feet',
-      },
     ]}
   />
 );
