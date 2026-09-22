@@ -70,7 +70,7 @@ router.get(
           return {
             ...p,
             rate_per_ft: undefined,
-            features: items.map(({ name, qty, unit }) => ({ name, qty, unit })),
+            features: items.map(({ name, usage_percent }) => ({ name, usage_percent })),
             priced: packageRate(p) > 0,
           };
         }),

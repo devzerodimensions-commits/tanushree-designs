@@ -962,7 +962,7 @@
 .incl__head,
 .incl__row {
   display: grid;
-  grid-template-columns: minmax(180px, 1fr) 200px auto;
+  grid-template-columns: minmax(160px, 1fr) minmax(100px, 140px) minmax(90px, 120px) auto;
   gap: 10px;
   align-items: center;
 }
@@ -1026,11 +1026,16 @@
   .incl__head { display: none; }
   .incl__row {
     grid-template-columns: 1fr auto;
-    grid-template-areas: 'name actions' 'qty qty';
+    grid-template-areas: 'name actions' 'price percent';
   }
   .incl__row > input:first-child { grid-area: name; }
-  .incl__qty { grid-area: qty; }
+  .incl__percent { grid-area: percent; }
   .incl__price { grid-area: price; }
   .incl__share { grid-area: share; }
   .incl__row .row-actions { grid-area: actions; }
 }
+
+.incl__percent { display: flex; align-items: center; gap: 6px; }
+.incl__percent input { min-width: 0; text-align: right; }
+.incl__percent span { color: var(--muted); }
+.incl__row > input, .incl__price input { min-width: 0; }

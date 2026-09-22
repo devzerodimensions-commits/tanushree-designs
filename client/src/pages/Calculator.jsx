@@ -478,14 +478,14 @@ export default function Calculator() {
                               <ul>
                                 {p.features.map((f, n) => {
                                   const name = typeof f === 'string' ? f : f?.name;
-                                  const quantity = typeof f === 'string' ? 0 : Number(f?.qty) || 0;
+                                  const usagePercent = typeof f === 'string' ? 0 : Number(f?.usage_percent) || 0;
                                   return (
                                     <li key={`${name}-${n}`}>
                                       <Icon.check />
                                       <span>{name}</span>
-                                      {quantity > 0 && (
+                                      {usagePercent > 0 && (
                                         <em className="calc-share">
-                                          {Math.round(quantity * runningFeet * 100) / 100} {f.unit}
+                                          {usagePercent}%
                                         </em>
                                       )}
                                     </li>
@@ -743,7 +743,7 @@ export default function Calculator() {
                           <thead>
                             <tr>
                               <th>Product</th>
-                              <th>Total usage</th>
+                              <th>Usage (%)</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -753,7 +753,7 @@ export default function Calculator() {
                                   <b>{line.name}</b>
 
                                 </td>
-                                <td>{line.quantity > 0 ? `${line.quantity} ${line.unit}` : 'Not specified'}</td>
+                                <td>{line.usage_percent != null ? `${line.usage_percent}%` : 'Not specified'}</td>
                               </tr>
                             ))}
                           </tbody>

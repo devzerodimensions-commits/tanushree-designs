@@ -457,7 +457,7 @@ export const CalcPackagesPage = () => (
         name: 'features',
         label: 'What is included',
         type: 'included',
-        hint: 'Enter usage per running foot and its unit. Total usage = quantity × measured furniture length; it does not change the price.',
+        hint: 'Enter each product’s price and usage percentage (0–100). These are independent values; the package rate is set separately.',
       },
     ]}
   />

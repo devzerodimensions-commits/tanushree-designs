@@ -6,12 +6,12 @@ import { includedUsage, packageRate } from './package-usage.js';
 
 test('usage scales with furniture length independently of prices', () => {
   const features = [{ name: 'Hinges', qty: 2, unit: 'nos', rate: 500, percent: 100 }];
-  assert.deepEqual(includedUsage(features, 15), [{ name: 'Hinges', quantity: 30, unit: 'nos' }]);
+  assert.deepEqual(includedUsage(features, 15), [{ name: 'Hinges', quantity: 30, unit: 'nos', usage_percent: 0 }]);
   assert.equal(packageRate({ features, rate_per_ft: 2500 }), 2500);
   features[0].qty = 4;
   assert.equal(packageRate({ features, rate_per_ft: 2500 }), 2500);
   assert.equal(includedUsage(features, 15)[0].quantity, 60);
-  assert.deepEqual(includedUsage(['Shutters'], 15), [{ name: 'Shutters', quantity: null, unit: 'nos' }]);
+  assert.deepEqual(includedUsage(['Shutters'], 15), [{ name: 'Shutters', quantity: null, unit: 'nos', usage_percent: 0 }]);
   assert.equal(includedUsage([{ name: 'Finish', qty: 1.25, unit: 'litre' }], 3.5)[0].quantity, 4.38);
 });
 
@@ -36,3 +36,13 @@ test('migration preserves effective rates and quantities, and is safe to repeat'
     await db.close();
   }
 });
+
+ test('manual usage percentage is independent of product price and length', () => {
+   const features = [{ name: 'Hinges', price: 250, usage_percent: 12.5 }];
+   assert.equal(includedUsage(features, 15)[0].usage_percent, 12.5);
+   features[0].price = 500;
+   assert.equal(includedUsage(features, 30)[0].usage_percent, 12.5);
+   assert.equal(packageRate({ features, rate_per_ft: 2000 }), 2000);
+   features[0].usage_percent = 120;
+   assert.equal(includedUsage(features, 15)[0].usage_percent, 100);
+ });
