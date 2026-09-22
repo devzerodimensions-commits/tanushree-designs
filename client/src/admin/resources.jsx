@@ -394,10 +394,7 @@ export const CalcLayoutsPage = () => (
  * disappears the moment one package is priced.
  */
 const unpricedNotice = (rows) => {
-  const priced = rows.filter((r) => {
-    const items = Array.isArray(r.features) ? r.features : [];
-    return items.reduce((t, f) => t + (Number(f?.rate) || 0), 0) > 0 || Number(r.rate_per_ft) > 0;
-  });
+  const priced = rows.filter((r) => Number(r.rate_per_ft) > 0);
   if (priced.length) return null;
 
   return (
@@ -405,7 +402,7 @@ const unpricedNotice = (rows) => {
       <b>No package has a price yet, so the calculator is not showing a figure.</b>
       <span>
         It asks the visitor for their details and says your team will be in touch. To show an
-        estimate instead, open a package below, type a price against each product, and press
+        estimate instead, open a package below, set its rate per running foot, and press
         Save — the front of the site changes the moment you do.
       </span>
     </div>
@@ -427,19 +424,11 @@ export const CalcPackagesPage = () => (
         label: 'Rate / running ft',
         width: 180,
         render: (r) => {
-          const items = Array.isArray(r.features) ? r.features : [];
-          const sum = items.reduce((t, f) => t + (Number(f?.rate) || 0), 0);
-          const total = sum > 0 ? sum : Number(r.rate_per_ft) || 0;
+          const total = Number(r.rate_per_ft) || 0;
           if (!total) return <span className="chip chip--new">not priced</span>;
           return (
             <b style={{ fontWeight: 600 }}>
               ₹{total.toLocaleString('en-IN')}
-              {sum > 0 && (
-                <span style={{ fontWeight: 400, color: 'var(--muted)', fontSize: '0.76rem' }}>
-                  {' '}
-                  ({items.filter((f) => Number(f?.rate) > 0).length} items)
-                </span>
-              )}
             </b>
           );
         },
@@ -458,9 +447,9 @@ export const CalcPackagesPage = () => (
       },
       {
         name: 'rate_per_ft',
-        label: 'Rate per running foot (₹) — fallback only',
+        label: 'Package rate per running foot (₹)',
         type: 'number',
-        hint: 'Used only when nothing below is priced. Price the products instead and this is ignored.',
+        hint: 'Package pricing is separate from product usage quantities.',
       },
       { name: 'description', label: 'Description', type: 'textarea', rows: 3 },
       { name: 'image_url', label: 'Image', type: 'image' },
@@ -468,7 +457,7 @@ export const CalcPackagesPage = () => (
         name: 'features',
         label: 'What is included',
         type: 'included',
-        hint: 'Each product with its price per running foot. The package price is their sum, and each share is worked out from the prices.',
+        hint: 'Enter usage per running foot and its unit. Total usage = quantity × measured furniture length; it does not change the price.',
       },
     ]}
   />

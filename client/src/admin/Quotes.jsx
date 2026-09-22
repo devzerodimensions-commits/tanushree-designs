@@ -322,7 +322,7 @@ export default function Quotes() {
                       <li key={line.name}>
                         <span>{line.name}</span>
                         <b>
-                          {line.quantity} {line.unit}
+                          {line.quantity > 0 ? `${line.quantity} ${line.unit}` : 'Not specified'}
                         </b>
                       </li>
                     ))}

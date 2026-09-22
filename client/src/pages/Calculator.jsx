@@ -477,15 +477,17 @@ export default function Calculator() {
                             {Array.isArray(p.features) && (
                               <ul>
                                 {p.features.map((f, n) => {
-                                  // Older rows are plain strings; newer ones
-                                  // carry the share worked out from the price.
                                   const name = typeof f === 'string' ? f : f?.name;
-                                  const share = typeof f === 'string' ? 0 : (f?.percent ?? 0);
+                                  const quantity = typeof f === 'string' ? 0 : Number(f?.qty) || 0;
                                   return (
                                     <li key={`${name}-${n}`}>
                                       <Icon.check />
                                       <span>{name}</span>
-                                      {share > 0 && <em className="calc-share">{share}%</em>}
+                                      {quantity > 0 && (
+                                        <em className="calc-share">
+                                          {Math.round(quantity * runningFeet * 100) / 100} {f.unit}
+                                        </em>
+                                      )}
                                     </li>
                                   );
                                 })}
@@ -733,8 +735,7 @@ export default function Calculator() {
                       </dl>
                     )}
 
-                    {/* What the package includes, priced out for this kitchen:
-                        product, price, and its share of the package. */}
+                    {/* Product usage for the measured furniture length. */}
                     {result.data?.breakdown?.included?.length > 0 && (
                       <div className="calc-lines">
                         <h3>What the package includes</h3>
@@ -742,9 +743,7 @@ export default function Calculator() {
                           <thead>
                             <tr>
                               <th>Product</th>
-                              <th>Price</th>
-                              <th>Share</th>
-                              <th>Amount</th>
+                              <th>Total usage</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -752,26 +751,9 @@ export default function Calculator() {
                               <tr key={`${line.name}-${n}`}>
                                 <td>
                                   <b>{line.name}</b>
-                                  <small>
-                                    {line.quantity} {line.unit}
-                                  </small>
+
                                 </td>
-                                <td>
-                                  {line.rate > 0
-                                    ? `${rupees(line.rate, currency)} / ${line.unit}`
-                                    : '—'}
-                                </td>
-                                <td>
-                                  {line.percent > 0 ? (
-                                    <span className="calc-pct">
-                                      <i style={{ width: `${line.percent}%` }} />
-                                      {line.percent}%
-                                    </span>
-                                  ) : (
-                                    '—'
-                                  )}
-                                </td>
-                                <td>{line.amount > 0 ? rupees(line.amount, currency) : '—'}</td>
+                                <td>{line.quantity > 0 ? `${line.quantity} ${line.unit}` : 'Not specified'}</td>
                               </tr>
                             ))}
                           </tbody>

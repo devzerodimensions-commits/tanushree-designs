@@ -962,7 +962,7 @@
 .incl__head,
 .incl__row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 150px 140px 164px auto;
+  grid-template-columns: minmax(180px, 1fr) 200px auto;
   gap: 10px;
   align-items: center;
 }
@@ -1026,7 +1026,7 @@
   .incl__head { display: none; }
   .incl__row {
     grid-template-columns: 1fr auto;
-    grid-template-areas: 'name actions' 'qty qty' 'price share';
+    grid-template-areas: 'name actions' 'qty qty';
   }
   .incl__row > input:first-child { grid-area: name; }
   .incl__qty { grid-area: qty; }

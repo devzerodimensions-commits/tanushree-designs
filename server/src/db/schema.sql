@@ -359,3 +359,25 @@ CREATE TABLE IF NOT EXISTS calc_quotes (
 );
 CREATE INDEX IF NOT EXISTS idx_calc_quotes_created ON calc_quotes(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_calc_quotes_status ON calc_quotes(status);
+
+-- Preserve the previous effective package price once, then remove obsolete
+-- product prices. Quantities and units remain intact and independent of money.
+WITH legacy AS (
+  SELECT p.id,
+    SUM(CASE WHEN jsonb_typeof(f.item) = 'object'
+                  AND COALESCE(f.item->>'rate', '') ~ '^[0-9]+([.][0-9]+)?$'
+             THEN (f.item->>'rate')::numeric ELSE 0 END) AS total,
+    jsonb_agg(CASE WHEN jsonb_typeof(f.item) = 'object'
+                  THEN f.item - 'rate' - 'percent' ELSE f.item END
+              ORDER BY f.ordinality) AS features
+  FROM calc_packages p
+  CROSS JOIN LATERAL jsonb_array_elements(
+    CASE WHEN jsonb_typeof(p.features) = 'array' THEN p.features ELSE '[]'::jsonb END
+  ) WITH ORDINALITY AS f(item, ordinality)
+  GROUP BY p.id
+  HAVING bool_or(jsonb_typeof(f.item) = 'object' AND (f.item ? 'rate' OR f.item ? 'percent'))
+)
+UPDATE calc_packages p
+SET rate_per_ft = CASE WHEN legacy.total > 0 THEN legacy.total ELSE p.rate_per_ft END,
+    features = legacy.features
+FROM legacy WHERE p.id = legacy.id;

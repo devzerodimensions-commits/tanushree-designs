@@ -1,3 +1,4 @@
+import { normaliseFeatures, packageRate, includedUsage } from '../utils/package-usage.js';
 /**
  * Kitchen price calculator.
  *
@@ -19,76 +20,6 @@ import { ApiError, asyncHandler, parseBody, toInt } from '../utils/http.js';
 import { cached } from '../utils/cache.js';
 
 const router = Router();
-
-/**
- * What a package includes, as a consistent shape.
- *
- * The field started life as a list of plain strings ("Laminate shutters") and
- * became a list of {name, rate} so each included item can carry its own price
- * per running foot. Old rows are still read, so nothing has to be migrated
- * before the admin is next opened.
- *
- * @returns {{name: string, rate: number}[]}
- */
-function normaliseFeatures(features) {
-  if (!Array.isArray(features)) return [];
-  return features
-    .map((f) =>
-      typeof f === 'string'
-        ? { name: f, rate: 0, qty: 0, unit: 'nos' }
-        : {
-            name: String(f?.name ?? '').trim(),
-            rate: Math.max(0, Number(f?.rate) || 0),
-            // How much of it one running foot takes, if the studio said.
-            qty: Math.max(0, Number(f?.qty) || 0),
-            unit: String(f?.unit || 'nos'),
-          }
-    )
-    .filter((f) => f.name);
-}
-
-/**
- * A package's rate per running foot.
- *
- * The sum of its included items when any of them is priced, so the breakdown
- * always adds up to the total the visitor is shown. `rate_per_ft` remains the
- * fallback for a package priced as one lump.
- */
-function packageRate(pkg) {
-  const items = normaliseFeatures(pkg?.features);
-  const sum = items.reduce((t, f) => t + f.rate, 0);
-  return sum > 0 ? sum : Math.max(0, Number(pkg?.rate_per_ft) || 0);
-}
-
-/**
- * Each item's share of the package, as a whole percentage.
- *
- * Rounded by largest remainder rather than individually, because rounding each
- * one on its own lets the column total 99% or 101% — which reads as a mistake
- * to anyone looking at it. Here the floors are handed out first and the spare
- * points go to the items that lost the most in rounding, so the column always
- * adds to exactly 100.
- */
-function withShare(items) {
-  const total = items.reduce((t, f) => t + f.rate, 0);
-  if (total <= 0) return items.map((f) => ({ ...f, percent: 0 }));
-
-  const exact = items.map((f) => (f.rate / total) * 100);
-  const percents = exact.map(Math.floor);
-  let spare = 100 - percents.reduce((t, n) => t + n, 0);
-
-  // Biggest fractional part first; ties go to the larger item.
-  const order = exact
-    .map((v, i) => ({ i, frac: v - Math.floor(v), rate: items[i].rate }))
-    .sort((a, b) => b.frac - a.frac || b.rate - a.rate);
-
-  for (let n = 0; n < order.length && spare > 0; n += 1, spare -= 1) {
-    percents[order[n].i] += 1;
-  }
-
-  return items.map((f, i) => ({ ...f, percent: percents[i] }));
-}
-
 
 const quoteLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
@@ -133,14 +64,13 @@ router.get(
         // studio's own working note about how it builds, kept to the admin
         // panel rather than published with the estimate.
         layouts: r.layouts ?? [],
-        // Included items carry their share so the card can show name and
-        // percentage. The rate itself stays on the server.
+        // Product usage is public; package pricing stays on the server.
         packages: (r.packages ?? []).map((p) => {
-          const items = withShare(normaliseFeatures(p.features));
+          const items = normaliseFeatures(p.features);
           return {
             ...p,
             rate_per_ft: undefined,
-            features: items.map(({ name, percent }) => ({ name, percent })),
+            features: items.map(({ name, qty, unit }) => ({ name, qty, unit })),
             priced: packageRate(p) > 0,
           };
         }),
@@ -235,23 +165,12 @@ router.post(
         ).rows
       : [];
 
-    // The package rate is the sum of what it includes, so the lines below add
-    // up to the figure the visitor is shown.
+    // Price and product usage are calculated independently.
     const rate = pkg.rows[0] ? packageRate(pkg.rows[0]) : 0;
     const cabinetry = Math.round(runningFeet * rate);
 
-    // What is included, priced out for a kitchen this size.
-    // Where the studio has said how much of a thing a running foot takes,
-    // the line says how many this kitchen needs — "48 nos" rather than the
-    // running feet again, which was the same number on every row.
-    const includedLines = withShare(normaliseFeatures(pkg.rows[0]?.features)).map((f) => ({
-      name: f.name,
-      rate: f.rate,
-      percent: f.percent,
-      quantity: f.qty > 0 ? Math.round(runningFeet * f.qty * 100) / 100 : runningFeet,
-      unit: f.qty > 0 ? f.unit : 'running ft',
-      amount: Math.round(runningFeet * f.rate),
-    }));
+    // Unknown usage stays unknown instead of being replaced by running feet.
+    const includedLines = includedUsage(pkg.rows[0]?.features, runningFeet);
     const addonTotal = addons.reduce((sum, a) => sum + Number(a.price ?? 0), 0);
 
     /*
