@@ -430,4 +430,3 @@ the address string, so the pin is as accurate as Google's geocoding of it. If
 the studio has a Google Business Profile, pasting its share URL into
 **Admin → Settings → Contact → Google Maps embed URL** will pin the listing
 exactly, along with its name, photos and reviews.
-"# sample1" 
